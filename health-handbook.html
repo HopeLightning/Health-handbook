@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>👨‍👩‍👧‍👦 家庭健康自查手册 v0.5.3<</title>
+  <style>
+    :root {
+      --bg: #faf9f6; --card: #ffffff; --primary: #2d7a5e;
+      --primary-light: #e8f5f0; --primary-dark: #1e5a42;
+      --accent: #e8a84a; --accent-light: #fef6e8;
+      --text: #2c2c2c; --text-light: #666;
+      --border: #e0ddd8; --radius: 16px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.7;
+      padding-bottom: 80px;
+    }
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white; padding: 32px 20px 40px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .header::before {
+      content: ''; position: absolute; bottom: -30px; left: -20px;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,0.06); border-radius: 50%;
+    }
+    .header::after {
+      content: ''; position: absolute; top: -40px; right: -30px;
+      width: 150px; height: 150px;
+      background: rgba(255,255,255,0.04); border-radius: 50%;
+    }
+    .header h1 { font-size: 21px; font-weight: 700; margin-bottom: 8px; position: relative; }
+    .header p { font-size: 14px; opacity: 0.85; position: relative; }
+    .header .badge {
+      display: inline-block; background: rgba(255,255,255,0.18);
+      border-radius: 20px; padding: 4px 14px;
+      font-size: 12px; margin-top: 12px; position: relative;
+    }
+    .nav {
+      display: flex; gap: 6px; padding: 14px 16px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; background: var(--card);
+      position: sticky; top: 0; z-index: 100;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav button {
+      flex-shrink: 0; border: none;
+      background: var(--primary-light); color: var(--primary);
+      padding: 7px 14px; border-radius: 20px;
+      font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .nav button.active { background: var(--primary); color: white; }
+    .nav button:active { transform: scale(0.96); }
+    .section {
+      display: none; padding: 20px 16px;
+      max-width: 680px; margin: 0 auto;
+      animation: fadeIn 0.25s ease;
+    }
+    .section.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .card {
+      background: var(--card); border-radius: var(--radius);
+      padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow);
+    }
+    .card-title {
+      font-size: 16px; font-weight: 700; color: var(--primary);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .card-title .icon { font-size: 20px; }
+    .check-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .check-table th {
+      background: var(--primary-light); color: var(--primary-dark);
+      padding: 9px 10px; text-align: left; font-weight: 600; font-size: 12px;
+    }
+    .check-table td {
+      padding: 10px; border-bottom: 1px solid var(--border); vertical-align: top;
+    }
+    .check-table tr:last-child td { border-bottom: none; }
+    .check-table td:first-child { font-weight: 600; }
+    .check-btns { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .check-btn {
+      border: 2px solid var(--border); background: white;
+      border-radius: 10px; padding: 6px 12px;
+      font-size: 12px; cursor: pointer;
+      transition: all 0.2s; color: var(--text-light);
+    }
+    .check-btn.pass { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+    .check-btn.fail { border-color: #e74c3c; background: #fdecea; color: #c0392b; }
+    .check-btn:active { transform: scale(0.96); }
+    .progress-wrap {
+      background: var(--primary-light); border-radius: 12px;
+      padding: 14px 16px; margin-bottom: 4px;
+    }
+    .progress-label {
+      display: flex; justify-content: space-between;
+      font-size: 13px; color: var(--primary-dark); font-weight: 600; margin-bottom: 8px;
+    }
+    .progress-bar { height: 10px; background: rgba(45,122,94,0.2); border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--primary); border-radius: 10px; transition: width 0.5s ease; width: 0%; }
+    .progress-tip { font-size: 12px; color: var(--text-light); margin-top: 8px; }
+    .form-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .form-row label { font-size: 14px; color: var(--text); min-width: 80px; font-weight: 500; }
+    .form-input {
+      flex: 1; border: 2px solid var(--border); border-radius: 10px;
+      padding: 10px 14px; font-size: 15px; outline: none;
+      transition: border-color 0.2s; background: var(--bg); color: var(--text);
+      max-width: 130px;
+    }
+    .form-input:focus { border-color: var(--primary); }
+    .form-row span { font-size: 13px; color: var(--text-light); }
+    .btn-calc {
+      width: 100%; background: var(--primary); color: white;
+      border: none; border-radius: 12px; padding: 14px;
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      margin-top: 8px; transition: all 0.2s;
+    }
+    .btn-calc:active { transform: scale(0.98); background: var(--primary-dark); }
+    .result-box {
+      background: var(--primary-light); border: 2px solid var(--primary);
+      border-radius: 12px; padding: 16px; margin-top: 14px; text-align: center;
+    }
+    .result-box .big-num { font-size: 40px; font-weight: 800; color: var(--primary); line-height: 1.1; }
+    .result-box .label { font-size: 13px; color: var(--primary-dark); margin-top: 4px; }
+    .result-box .sub { font-size: 12px; color: var(--text-light); margin-top: 8px; line-height: 1.5; }
+    .result-table { width: 100%; margin-top: 14px; border-collapse: collapse; }
+    .result-table td { padding: 9px 12px; font-size: 14px; border-bottom: 1px solid var(--border); }
+    .result-table td:first-child { font-weight: 600; }
+    .result-table td:last-child { text-align: right; color: var(--primary); font-weight: 700; }
+    .formula-banner {
+      background: var(--accent-light); border-left: 4px solid var(--accent);
+      border-radius: 0 12px 12px 0; padding: 14px 16px; margin: 16px 0;
+      font-size: 13px; line-height: 1.7;
+    }
+    .formula-banner code {
+      background: rgba(0,0,0,0.06); border-radius: 6px;
+      padding: 2px 8px; font-family: "Courier New", monospace; font-size: 12px;
+    }
+    .alert {
+      background: #fff8e6; border: 1.5px solid #f0c060; border-radius: 12px;
+      padding: 12px 14px; font-size: 13px;
+      display: flex; gap: 10px; align-items: flex-start; margin-top: 14px;
+    }
+    .alert .emoji { font-size: 18px; flex-shrink: 0; }
+    .alert p { color: var(--text); line-height: 1.6; }
+    .steps { counter-reset: step; }
+    .step { display: flex; gap: 14px; margin-bottom: 16px; }
+    .step::before {
+      counter-increment: step; content: counter(step);
+      width: 28px; height: 28px; background: var(--primary); color: white;
+      border-radius: 50%; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .step-content { flex: 1; }
+    .step-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .step-desc { font-size: 13px; color: var(--text-light); line-height: 1.6; }
+    .bullet-list { list-style: none; padding: 0; }
+    .bullet-list {
+      padding: 0; list-style: none;
+    }
+    .bullet-list li {
+      padding: 8px 0 8px 20px; font-size: 14px;
+      border-bottom: 1px solid var(--border); position: relative;
+      line-height: 1.6;
+    }
+    .bullet-list li:last-child { border-bottom: none; }
+    .bullet-list .dot {
+      position: absolute; left: 0; top: 8px;
+      color: var(--primary); font-weight: 700;
+    }
+    .priority-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .priority-card {
+      background: var(--card); border-radius: var(--radius);
+      padding: 16px; text-align: center; box-shadow: var(--shadow);
+    }
+    .priority-card .num {
+      width: 34px; height: 34px; background: var(--primary); color: white;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 15px; margin: 0 auto 8px;
+    }
+    .priority-card.top .num { background: var(--accent); }
+    .priority-card .title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .priority-card .desc { font-size: 11px; color: var(--text-light); }
+    .principle-list { padding: 0; list-style: none; }
+    .principle-list li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 10px 0; font-size: 14px; border-bottom: 1px solid var(--border);
+    }
+    .principle-list li:last-child { border-bottom: none; }
+    .principle-list .num-badge {
+      width: 22px; height: 22px; background: var(--primary); color: white;
+      border-radius: 50%; font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+    }
+    .faq-item { background: var(--card); border-radius: var(--radius); margin-bottom: 10px; box-shadow: var(--shadow); overflow: hidden; }
+    .faq-q {
+      width: 100%; background: none; border: none; padding: 16px 20px;
+      text-align: left; font-size: 14px; font-weight: 600; color: var(--text);
+      cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+      transition: background 0.15s;
+    }
+    .faq-q:hover { background: var(--primary-light); }
+    .faq-q .arrow { font-size: 14px; transition: transform 0.2s; color: var(--text-light); }
+    .faq-q.open .arrow { transform: rotate(180deg); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    .faq-a.open { max-height: 400px; }
+    .faq-a-content { padding: 0 20px 16px; font-size: 13px; color: var(--text-light); line-height: 1.7; }
+    .faq-a-content p { margin-bottom: 8px; }
+    .faq-a-content p:last-child { margin-bottom: 0; }
+    #scrollTop {
+      position: fixed; bottom: 20px; right: 20px;
+      width: 44px; height: 44px; background: var(--primary); color: white;
+      border: none; border-radius: 50%; font-size: 20px;
+      cursor: pointer; box-shadow: 0 4px 16px rgba(45,122,94,0.4);
+      display: none; z-index: 200; align-items: center; justify-content: center;
+    }
+    #scrollTop.show { display: flex; }
+    .footer { text-align: center; padding: 24px 16px; font-size: 12px; color: var(--text-light); max-width: 680px; margin: 0 auto; }
+    .advice-tag {
+      display: inline-block; padding: 3px 10px; border-radius: 20px;
+      font-size: 12px; font-weight: 600; margin-right: 4px;
+    }
+    .advice-tag.fail { background: #fdecea; color: #c0392b; }
+    .advice-tag.pass { background: var(--primary-light); color: var(--primary); }
+
+    /* ── 自检卡片 ── */
+    .test-card {
+      background: var(--card); border-radius: var(--radius);
+      margin-bottom: 10px; box-shadow: var(--shadow);
+      overflow: hidden; border: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+    .test-card.done { border-color: var(--primary); }
+    .test-card.fail { border-color: #f0b0a0; }
+    .test-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 18px; cursor: pointer;
+      user-select: none; transition: background 0.15s;
+    }
+    .test-header:active { background: var(--primary-light); }
+    .test-header-left { display: flex; align-items: center; gap: 12px; }
+    .test-icon { font-size: 26px; flex-shrink: 0; }
+    .test-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .test-sub { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+    .test-header-right { display: flex; align-items: center; gap: 8px; }
+    .test-status { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+    .test-status.pass { background: var(--primary-light); color: var(--primary); }
+    .test-status.fail { background: #fdecea; color: #c0392b; }
+    .test-status.pending { background: var(--bg); color: var(--text-light); }
+    .test-arrow { font-size: 12px; color: var(--text-light); transition: transform 0.2s; }
+    .test-header.open .test-arrow { transform: rotate(180deg); }
+    .test-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s ease;
+      padding: 0 18px;
+    }
+    .test-body.open { max-height: 900px; padding-bottom: 18px; }
+    .method-label {
+      font-size: 12px; font-weight: 700; color: var(--primary-dark);
+      margin-bottom: 8px; margin-top: 4px;
+    }
+    .method-box {
+      background: var(--bg); border-radius: 10px;
+      padding: 14px; margin-bottom: 4px;
+    }
+    .test-btn { font-size: 13px; padding: 8px 14px; }
+
+    /* ── Splash Screen ── */
+    #splash {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+      animation: splashFadeOut 0.8s ease 2s forwards;
+    }
+    #splash.hide { animation: splashFadeOut 0.8s ease forwards; }
+    @keyframes splashFadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; visibility: hidden; }
+    }
+    .splash-inner { text-align: center; color: white; }
+    .splash-title { font-size: 52px; margin-bottom: 16px; }
+    .splash-text {
+      font-size: 16px; line-height: 1.6;
+      opacity: 0.9; font-weight: 500;
+    }
+
+    /* ── Footer Credit ── */
+    .footer .credit { font-size: 11px; color: var(--text-light); margin-top: 6px; opacity: 0.7; }
+    .footer-logo { height: 40px; width: auto; opacity: 0.5; display: block; margin: 0 auto 12px; }
+
+    /* ── Language Toggle ── */
+    .lang-toggle {
+      position: fixed; top: 60px; right: 10px; z-index: 300;
+      display: flex; background: rgba(225,241,223,0.2);
+      border-radius: 20px; padding: 3px;
+      backdrop-filter: blur(8px);
+    }
+    .lang-btn {
+      border: none; background: none; color: rgba(255,255,255,0.7);
+      padding: 5px 12px; border-radius: 16px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .lang-btn.active { background: white; color: var(--primary); }
+    .lang-btn:active { transform: scale(0.95); }
+
+    [lang-en] .zh-only { display: none !important; }
+    [lang-zh] .en-only { display: none !important; }
+    .advice-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .advice-item:last-child { border-bottom: none; }
+    .advice-item .item-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .advice-item .item-text { flex: 1; line-height: 1.5; }
+    .advice-item .item-tag {
+      padding: 2px 8px; border-radius: 20px; font-size: 11px;
+      font-weight: 600; white-space: nowrap; flex-shrink: 0;
+    }
+    .advice-item .item-tag.fail { background: #fdecea; color: #c0392b; }
+    .advice-item .item-tag.pass { background: var(--primary-light); color: var(--primary); }
+    .summary-principle {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .summary-principle:last-child { border-bottom: none; }
+    .summary-principle .num-badge {
+      width: 24px; height: 24px; background: var(--primary); color: white;
+      border-radius: 50%; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .summary-principle .content { flex: 1; font-size: 13px; color: var(--text-light); line-height: 1.6; }
+    .summary-principle .content strong { color: var(--text); }
+  </style>
+</head>
+<body lang="zh">
+
+<!-- 启动画面 -->
+<div id="splash">
+  <div class="splash-inner">
+    <div class="splash-title">👨‍👩‍👧‍👦</div>
+    <div class="splash-text">Made by HopE<br>和他的 AI 助手小爪</div>
+  </div>
+</div>
+
+<div class="header" id="top">
+  <!-- 语言切换 -->
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-zh" onclick="setLang('zh')">中文</button>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+
+  <h1 class="zh-only">👨‍👩‍👧‍👦 家庭健康自查手册 v0.5.3</h1>
+  <p class="zh-only">祝你早安、午安、晚安</p>
+  <div class="badge zh-only">🧭 科学自检 · 精准训练 · 全家适用</div>
+
+  <h1 class="en-only" style="display:none">👨‍👩‍👧‍👦 Family Health Guide</h1>
+  <p class="en-only" style="display:none">Build a healthy body without heavy lifting — science-backed training for the whole family</p>
+  <div class="badge en-only" style="display:none">🧭 Self-Check · Precision Training · All Ages</div>
+</div>
+
+<div class="nav" id="nav">
+  <button class="active" onclick="showSection('self-check')"><span class="zh-only">📋 自检</span><span class="en-only" style="display:none">📋 Self-Check</span></button>
+  <button onclick="showSection('cardio')"><span class="zh-only">❤️ 心肺</span><span class="en-only" style="display:none">❤️ Cardio</span></button>
+  <button onclick="showSection('flexibility')"><span class="zh-only">🤸 柔韧</span><span class="en-only" style="display:none">🤸 Flexibility</span></button>
+  <button onclick="showSection('weight')"><span class="zh-only">⚖️ 体重</span><span class="en-only" style="display:none">⚖️ Body Weight</span></button>
+  <button onclick="showSection('muscle')"><span class="zh-only">💪 肌肉</span><span class="en-only" style="display:none">💪 Muscle</span></button>
+  <button onclick="showSection('summary')"><span class="zh-only">🏆 总结</span><span class="en-only" style="display:none">🏆 Summary</span></button>
+  <button onclick="showSection('faq')"><span class="zh-only">❓ FAQ</span><span class="en-only" style="display:none">❓ FAQ</span></button>
+</div>
+
+<!-- ══ 自检 ══ -->
+<div class="section active" id="sec-self-check">
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>🏆 <span class="zh-only">自检完成进度</span><span class="en-only" style="display:none">Self-Check Progress</span></span>
+      <span id="progress-text">0 / 5</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-tip" id="progress-tip"><span class="zh-only">完成自检，获取专属训练建议 👇</span><span class="en-only" style="display:none">Complete self-checks to get your personal training roadmap 👇</span></div>
+  </div>
+
+  <!-- 自检说明 -->
+  <div class="card" style="background:#f0f7f4;border-left:4px solid var(--primary)">
+    <div style="font-size:13px;color:var(--text-light);line-height:1.7">
+      <span class="zh-only">先点击每个测试查看测量方法，测完后点选结果。有设备的用设备测，没设备的用<strong>零成本方法</strong>，同样准确！</span>
+      <span class="en-only" style="display:none">Tap each test to view the measurement method, then mark your result. Use the equipment version if available, or the <strong>zero-cost version</strong> — both are accurate!</span>
+    </div>
+  </div>
+
+  <!-- ① 心肺功能 -->
+  <div class="test-card" id="test-cardio">
+    <div class="test-header" onclick="toggleTest('cardio')">
+      <div class="test-header-left">
+        <span class="test-icon">❤️</span>
+        <div>
+          <div class="test-title"><span class="zh-only">心肺功能</span><span class="en-only" style="display:none">Cardiovascular Fitness</span></div>
+          <div class="test-sub"><span class="zh-only">最大摄氧量 VO₂max</span><span class="en-only" style="display:none">Max Oxygen Uptake VO₂max</span></div>
+        </div>
+      </div>
+      <div class="test-header-right">
+        <span class="test-status" id="status-cardio"></span>
+        <span class="test-arrow">▼</span>
+      </div>
+    </div>
+    <div class="test-body" id="body-cardio">
+      <div class="method-label"><span class="zh-only">🆓 零成本版：6分钟步行测试</span><span class="en-only" style="display:none">🆓 Zero-Cost: 6-Minute Walk Test</span></div>
+      <div class="method-box">
+        <p style="margin-bottom:10px"><span class="zh-only">在平坦地面（小区、操场）<strong>尽可能快地走6分钟</strong>，记录总距离：</span><span class="en-only" style="display:none">Walk as far as possible in <strong>6 minutes</strong> on a flat surface (track, park). Record the total distance:</span></p>
+        <table class="check-table" style="font-size:12px">
+          <thead><tr><th><span class="zh-only">性别</span><span class="en-only" style="display:none">Gender</span></th><th><span class="zh-only">6分钟步行距离</span><span class="en-only" style="display:none">Distance</span></th><th><span class="zh-only">心肺功能</span><span class="en-only" style="display:none">Cardio Level</span></th></tr></thead>
+          <tbody>
+            <tr><td><span class="zh-only">男性</span><span class="en-only" style="display:none">Male</span></td><td>&lt; 500m</td><td style="color:#c0392b">⚠️ <span class="zh-only">偏低</span><span class="en-only" style="display:none">Low</span></td></tr>
+            <tr><td><span class="zh-only">男性</span><span class="en-only" style="display:none">Male</span></td><td>500-700m</td><td style="color:#e8a84a">⚡ <span class="zh-only">及格</span><span class="en-only" style="display:none">Fair</span></td></tr>
+            <tr><td><span class="zh-only">男性</span><span class="en-only" style="display:none">Male</span></td><td>&gt; 700m</td><td style="color:#2d7a5e">✅ <span class="zh-only">良好</span><span class="en-only" style="display:none">Good</span></td></tr>
+            <tr><td><span class="zh-only">女性</span><span class="en-only" style="display:none">Female</span></td><td>&lt; 400m</td><td style="color:#c0392b">⚠️ <span class="zh-only">偏低</span><span class="en-only" style="display:none">Low</span></td></tr>
+            <tr><td><span class="zh-only">女性</span><span class="en-only" style="display:none">Female</span></td><td>400-600m</td><td style="color:#e8a84a">⚡ <span class="zh-only">及格</span><span class="en-only" style="display:none">Fair</span></td></tr>
+            <tr><td><span class="zh-only">女性</span><span class="en-only" style="display:none">Female</span></td><td>&gt; 600m</td><td style="color:#2d7a5e">✅ <span class="zh-only">良好</span><span class="en-only" style="display:none">Good</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="method-label" style="margin-top:12px"><span class="zh-only">📱 有设备版：心率手环估算最大摄氧量</span><span class="en-only" style="display:none">📱 With Device: Estimate VO₂max via Heart Rate</span></div>
+      <div class="method-box">
+        <p style="margin-bottom:8px"><span class="zh-only">用小米/华为/Apple Watch等手环测量<strong>静息心率</strong>，然后估算：</span><span class="en-only" style="display:none">Measure your <strong>resting heart rate</strong> with a fitness band (Xiaomi/Huawei/Apple Watch etc.), then estimate:</span></p>
+        <div class="formula-banner" style="margin:10px 0">
+          <span class="zh-only"><strong>VO₂max 估算</strong> = <code>15.3 × (最大心率 / 静息心率)</code><br><br>最大心率 ≈ <code>208 − 0.7 × 年龄</code>（Tanaka公式）</span>
+          <span class="en-only" style="display:none"><strong>VO₂max estimate</strong> = <code>15.3 × (Max HR / Resting HR)</code><br><br>Max HR ≈ <code>208 − 0.7 × Age</code> (Tanaka formula)</span>
+        </div>
+        <p style="font-size:12px;color:var(--text-light)"><span class="zh-only">例：50岁男性，静息心率65<br>最大心率 = 208−35 = 173<br>VO₂max ≈ 15.3 × (173/65) ≈ <strong>40.7</strong> → 及格 ✅</span><span class="en-only" style="display:none">Example: 50-year-old male, resting HR 65<br>Max HR = 208−35 = 173<br>VO₂max ≈ 15.3 × (173/65) ≈ <strong>40.7</strong> → Fair ✅</span></p>
+      </div>
+
+      <div class="check-btns" style="margin-top:14px">
+        <button class="check-btn test-btn" onclick="toggleCheck(this,'cardio-check')"><span class="zh-only">✅ 达标（及格以上）</span><span class="en-only" style="display:none">✅ Pass</span></button>
+        <button class="check-btn test-btn" onclick="toggleCheck(this,'cardio-check')"><span class="zh-only">❌ 不达标</span><span class="en-only" style="display:none">❌ Not Met</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 体脂率 -->
+  <div class="test-card" id="test-fat">
+    <div class="test-header" onclick="toggleTest('fat')">
+      <div class="test-header-left">
+        <span class="test-icon">⚖️</span>
+        <div>
+          <div class="test-title"><span class="zh-only">体脂率</span><span class="en-only" style="display:none">Body Fat</span></div>
+          <div class="test-sub"><span class="zh-only">内脏脂肪 / 皮下脂肪</span><span class="en-only" style="display:none">Visceral &amp; Subcutaneous Fat</span></div>
+        </div>
+      </div>
+      <div class="test-header-right">
+        <span class="test-status" id="status-fat"></span>
+        <span class="test-arrow">▼</span>
+      </div>
+    </div>
+    <div class="test-body" id="body-fat">
+      <div class="method-label"><span class="zh-only">🆓 零成本版：腰围测量</span><span class="en-only" style="display:none">🆓 Zero-Cost: Waist Circumference</span></div>
+      <div class="method-box">
+        <p style="margin-bottom:10px"><span class="zh-only">用软尺绕肚脐一圈测量（呼气末测量）：</span><span class="en-only" style="display:none">Measure around your waist at navel level at the end of exhalation:</span></p>
+        <table class="check-table" style="font-size:12px">
+          <thead><tr><th><span class="zh-only">性别</span><span class="en-only" style="display:none">Gender</span></th><th><span class="zh-only">正常</span><span class="en-only" style="display:none">Normal</span></th><th><span class="zh-only">偏高</span><span class="en-only" style="display:none">Elevated</span></th><th><span class="zh-only">超标</span><span class="en-only" style="display:none">High Risk</span></th></tr></thead>
+          <tbody>
+            <tr><td><span class="zh-only">女性</span><span class="en-only" style="display:none">Female</span></td><td style="color:#2d7a5e">≤ 80cm ✅</td><td style="color:#e8a84a">80-88cm</td><td style="color:#c0392b">≥ 88cm ⚠️</td></tr>
+            <tr><td><span class="zh-only">男性</span><span class="en-only" style="display:none">Male</span></td><td style="color:#2d7a5e">≤ 90cm ✅</td><td style="color:#e8a84a">90-100cm</td><td style="color:#c0392b">≥ 100cm ⚠️</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:12px;color:var(--text-light);margin-top:8px"><span class="zh-only">注：腰围可间接反映内脏脂肪堆积程度，是糖尿病、高血压的强预测指标</span><span class="en-only" style="display:none">Note: Waist circumference is a strong predictor of visceral fat, diabetes, and hypertension risk.</span></p>
+      </div>
+
+      <div class="method-label" style="margin-top:12px"><span class="zh-only">📱 有设备版：体脂秤</span><span class="en-only" style="display:none">📱 With Device: Body Fat Scale</span></div>
+      <div class="method-box">
+        <p style="margin-bottom:8px"><span class="zh-only">推荐购买<strong>体脂秤</strong>（50-150元），全家都能用，早上空腹测量最准。</span><span class="en-only" style="display:none">A <strong>body fat scale</strong> (~$10-30) works for the whole family. Best measured fasting in the morning.</span></p>
+        <table class="check-table" style="font-size:12px">
+          <thead><tr><th><span class="zh-only">性别</span><span class="en-only" style="display:none">Gender</span></th><th><span class="zh-only">健康</span><span class="en-only" style="display:none">Healthy</span></th><th><span class="zh-only">偏低</span><span class="en-only" style="display:none">Low</span></th><th><span class="zh-only">偏胖</span><span class="en-only" style="display:none">Overfat</span></th><th><span class="zh-only">超标</span><span class="en-only" style="display:none">High Risk</span></th></tr></thead>
+          <tbody>
+            <tr><td><span class="zh-only">女性</span><span class="en-only" style="display:none">Female</span></td><td style="color:#2d7a5e">20-25% ✅</td><td>&lt; 17%</td><td style="color:#e8a84a">25-30%</td><td style="color:#c0392b">≥ 30%</td></tr>
+            <tr><td><span class="zh-only">男性</span><span class="en-only" style="display:none">Male</span></td><td style="color:#2d7a5e">15-20% ✅</td><td>&lt; 10%</td><td style="color:#e8a84a">20-25%</td><td style="color:#c0392b">≥ 25%</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:12px;color:var(--text-light);margin-top:8px"><span class="zh-only">注：体脂秤数据有±3%误差，建议固定时间（早起空腹）测量看趋势，不用纠结单次数值</span><span class="en-only" style="display:none">Note: Body fat scale readings have ~±3% margin of error. Measure at the same time daily (fasting morning preferred) and track the trend.</span></p>
+      </div>
+
+      <div class="check-btns" style="margin-top:14px">
+        <button class="check-btn test-btn" onclick="toggleCheck(this,'fat-check')"><span class="zh-only">✅ 达标</span><span class="en-only" style="display:none">✅ Pass</span></button>
+        <button class="check-btn test-btn" onclick="toggleCheck(this,'fat-check')"><span class="zh-only">❌ 不达标</span><span class="en-only" style="display:none">❌ Not Met</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 柔韧度 -->
+  <div class="test-card" id="test-flex">
+    <div class="test-header" onclick="toggleTest('flex')">
+      <div class="test-header-left">
+        <span class="test-icon">🤸</span>
+        <div>
+          <div class="test-title"><span class="zh-only">柔韧度</span><span class="en-only" style="display:none">Flexibility</span></div>
+          <div class="test-sub"><span class="zh-only">体前屈 / 关节活动度</span><span class="en-only" style="display:none">Sit &amp; Reach / Joint Mobility</span></div>
+        </div>
+      </div>
+      <div class="test-header-right">
+        <span class="test-status" id="status-flex"></span>
+        <span class="test-arrow">▼</span>
+      </div>
+    </div>
+    <div class="test-body" id="body-flex">
+      <div class="method-label"><span class="zh-only">🆓 零成本版：坐姿体前屈</span><span class="en-only" style="display:none">🆓 Zero-Cost: Sit-and-Reach Test</span></div>
+      <div class="method-box">
+        <p style="margin-bottom:10px"><strong><span class="zh-only">测试方法：</span><span class="en-only" style="display:none">How to test:</span></strong></p>
+        <ol style="font-size:13px;color:var(--text-light);padding-left:18px;line-height:2">
+          <li><span class="zh-only">坐在地上，双腿伸直，脚尖向上</span><span class="en-only" style="display:none">Sit on the floor, legs straight, toes pointing up</span></li>
+          <li><span class="zh-only">深吸一口气，慢慢向前弯曲上半身</span><span class="en-only" style="display:none">Take a deep breath, slowly lean forward</span></li>
+          <li><span class="zh-only">手指尽量往脚尖方向伸（不要弹振）</span><span class="en-only" style="display:none">Reach toward toes — no bouncing</span></li>
+          <li><span class="zh-only">保持姿势，测量手指尖到脚尖的距离</span><span class="en-only" style="display:none">Hold and note the distance from fingers to toes</span></li>
+        </ol>
+        <table class="check-table" style="font-size:12px;margin-top:10px">
+          <thead><tr><th><span class="zh-only">结果</span><span class="en-only" style="display:none">Result</span></th><th><span class="zh-only">判断</span><span class="en-only" style="display:none">Assessment</span></th></tr></thead>
+          <tbody>
+            <tr><td><span class="zh-only">手指超过脚尖</span><span class="en-only" style="display:none">Past toes</span></td><td style="color:#2d7a5e">✅ <span class="zh-only">柔韧度良好</span><span class="en-only" style="display:none">Good</span></td></tr>
+            <tr><td><span class="zh-only">手指碰到脚尖附近</span><span class="en-only" style="display:none">At toes</span></td><td style="color:#e8a84a">⚡ <span class="zh-only">柔韧度及格</span><span class="en-only" style="display:none">Fair</span></td></tr>
+            <tr><td><span class="zh-only">手指只到小腿/膝盖</span><span class="en-only" style="display:none">At shins/knees</span></td><td style="color:#c0392b">⚠️ <span class="zh-only">需重点改善</span><span class="en-only" style="display:none">Needs work</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="check-btns" style="margin-top:14px">
+        <button class="check-btn test-btn" onclick="toggleCheck(this,'flex-check')"><span class="zh-only">✅ 达标（碰到脚尖）</span><span class="en-only" style="display:none">✅ Pass</span></button>
+        <button class="check-btn test-btn" onclick="toggleCheck(this,'flex-check')"><span class="zh-only">❌ 不达标</span><span class="en-only" style="display:none">❌ Not Met</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ④ 肌肉耐力 -->
+  <div class="test-card" id="test-squat">
+    <div class="test-header" onclick="toggleTest('squat')">
+      <div class="test-header-left">
+        <span class="test-icon">🦵</span>
+        <div>
+          <div class="test-title"><span class="zh-only">肌肉耐力</span><span class="en-only" style="display:none">Muscular Endurance</span></div>
+          <div class="test-sub"><span class="zh-only">无负重深蹲</span><span class="en-only" style="display:none">Bodyweight Squat</span></div>
+        </div>
+      </div>
+      <div class="test-header-right">
+        <span class="test-status" id="status-squat"></span>
+        <span class="test-arrow">▼</span>
+      </div>
+    </div>
+    <div class="test-body" id="body-squat">
+      <div class="method-label"><span class="zh-only">🆓 零成本版：徒手深蹲测试</span><span class="en-only" style="display:none">🆓 Zero-Cost: Bodyweight Squat Test</span></div>
+      <div class="method-box">
+        <p style="margin-bottom:10px"><strong><span class="zh-only">测试方法：</span><span class="en-only" style="display:none">How to test:</span></strong></p>
+        <ol style="font-size:13px;color:var(--text-light);padding-left:18px;line-height:2">
+          <li><span class="zh-only">双脚与肩同宽，脚尖略微向外（不超过15度）</span><span class="en-only" style="display:none">Feet shoulder-width apart, toes slightly out (≤15°)</span></li>
+          <li><span class="zh-only">后背挺直，目视前方</span><span class="en-only" style="display:none">Keep chest up, eyes forward</span></li>
+          <li><span class="zh-only">匀速下蹲至大腿与地面平行（或尽可能低）</span><span class="en-only" style="display:none">Squat to parallel (or as low as possible)</span></li>
+          <li><span class="zh-only">匀速站起，计一次完整蹲起</span><span class="en-only" style="display:none">Stand back up — count as one rep</span></li>
+          <li><span class="zh-only">尽量做满30次，记录做到第几次停下来</span><span class="en-only" style="display:none">Do up to 30 reps; note where you stop</span></li>
+        </ol>
+        <table class="check-table" style="font-size:12px;margin-top:10px">
+          <thead><tr><th><span class="zh-only">结果</span><span class="en-only" style="display:none">Result</span></th><th><span class="zh-only">判断</span><span class="en-only" style="display:none">Assessment</span></th></tr></thead>
+          <tbody>
+            <tr><td><span class="zh-only">能完成30次匀速蹲起</span><span class="en-only" style="display:none">30 reps smoothly</span></td><td style="color:#2d7a5e">✅ <span class="zh-only">肌肉耐力合格</span><span class="en-only" style="display:none">Pass</span></td></tr>
+            <tr><td><span class="zh-only">20-29次</span><span class="en-only" style="display:none">20-29 reps</span></td><td style="color:#e8a84a">⚡ <span class="zh-only">偏弱，可改善</span><span class="en-only" style="display:none">Fair</span></td></tr>
+            <tr><td>&lt; <span class="zh-only">20次</span><span class="en-only" style="display:none">20 reps</span></td><td style="color:#c0392b">⚠️ <span class="zh-only">肌肉耐力明显不足</span><span class="en-only" style="display:none">Needs work</span></td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:12px;color:var(--text-light);margin-top:8px">⚠️ <span class="zh-only">如果蹲不下去或膝盖疼，停下来换其他项目，不要勉强</span><span class="en-only" style="display:none">Stop if you feel knee pain — skip to another test.</span></p>
+      </div>
+      <div class="check-btns" style="margin-top:14px">
+        <button class="check-btn test-btn" onclick="toggleCheck(this,'squat-check')"><span class="zh-only">✅ 达标（30次）</span><span class="en-only" style="display:none">✅ Pass</span></button>
+        <button class="check-btn test-btn" onclick="toggleCheck(this,'squat-check')"><span class="zh-only">❌ 不达标</span><span class="en-only" style="display:none">❌ Not Met</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑤ 肌肉力量 -->
+  <div class="test-card" id="test-pushup">
+    <div class="test-header" onclick="toggleTest('pushup')">
+      <div class="test-header-left">
+        <span class="test-icon">💪</span>
+        <div>
+          <div class="test-title"><span class="zh-only">肌肉力量</span><span class="en-only" style="display:none">Muscular Strength</span></div>
+          <div class="test-sub"><span class="zh-only">跪姿俯卧撑</span><span class="en-only" style="display:none">Knee Push-Up</span></div>
+        </div>
+      </div>
+      <div class="test-header-right">
+        <span class="test-status" id="status-pushup"></span>
+        <span class="test-arrow">▼</span>
+      </div>
+    </div>
+    <div class="test-body" id="body-pushup">
+      <div class="method-label"><span class="zh-only">🆓 零成本版：跪姿俯卧撑测试</span><span class="en-only" style="display:none">🆓 Zero-Cost: Knee Push-Up Test</span></div>
+      <div class="method-box">
+        <p style="margin-bottom:10px"><strong><span class="zh-only">测试方法：</span><span class="en-only" style="display:none">How to test:</span></strong></p>
+        <ol style="font-size:13px;color:var(--text-light);padding-left:18px;line-height:2">
+          <li><span class="zh-only">膝盖跪在垫子/软垫上，双脚交叉抬起</span><span class="en-only" style="display:none">Knees on a mat, feet crossed and lifted</span></li>
+          <li><span class="zh-only">双手撑地，与肩同宽，手指朝前</span><span class="en-only" style="display:none">Hands shoulder-width, fingers forward</span></li>
+          <li><span class="zh-only">身体从头顶到膝盖保持一条直线（核心收紧）</span><span class="en-only" style="display:none">Body straight from head to knees; brace core</span></li>
+          <li><span class="zh-only">屈肘下放至胸口接近地面</span><span class="en-only" style="display:none">Lower chest toward the ground</span></li>
+          <li><span class="zh-only">推起，计一次，做到力竭为止</span><span class="en-only" style="display:none">Push up — count reps to failure</span></li>
+        </ol>
+        <table class="check-table" style="font-size:12px;margin-top:10px">
+          <thead><tr><th><span class="zh-only">结果</span><span class="en-only" style="display:none">Result</span></th><th><span class="zh-only">判断</span><span class="en-only" style="display:none">Assessment</span></th></tr></thead>
+          <tbody>
+            <tr><td><span class="zh-only">能连续完成 ≥ 20个</span><span class="en-only" style="display:none">≥ 20 reps</span></td><td style="color:#2d7a5e">✅ <span class="zh-only">肌肉力量合格</span><span class="en-only" style="display:none">Pass</span></td></tr>
+            <tr><td><span class="zh-only">10-19个</span><span class="en-only" style="display:none">10-19 reps</span></td><td style="color:#e8a84a">⚡ <span class="zh-only">偏弱，可改善</span><span class="en-only" style="display:none">Fair</span></td></tr>
+            <tr><td>&lt; <span class="zh-only">10个</span><span class="en-only" style="display:none">10 reps</span></td><td style="color:#c0392b">⚠️ <span class="zh-only">肌肉力量明显不足</span><span class="en-only" style="display:none">Needs work</span></td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:12px;color:var(--text-light);margin-top:8px">💡 <span class="zh-only">做不了标准跪姿俯卧撑？先从墙壁俯卧撑开始，循序渐进</span><span class="en-only" style="display:none">Can't do knee push-ups? Start with wall push-ups and progress gradually.</span></p>
+      </div>
+      <div class="check-btns" style="margin-top:14px">
+        <button class="check-btn test-btn" onclick="toggleCheck(this,'pushup-check')"><span class="zh-only">✅ 达标（≥20个）</span><span class="en-only" style="display:none">✅ Pass</span></button>
+        <button class="check-btn test-btn" onclick="toggleCheck(this,'pushup-check')"><span class="zh-only">❌ 不达标</span><span class="en-only" style="display:none">❌ Not Met</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 路线图 -->
+  <div class="card" id="advice-card" style="display:none">
+    <div class="card-title"><span class="icon">🗺️</span><span class="zh-only"> 你的专属训练路线图</span><span class="en-only" style="display:none"> Your Personal Training Roadmap</span></div>
+    <div id="advice-list"></div>
+    <div class="alert" style="margin-top:14px">
+      <span class="emoji">💡</span>
+      <p><span class="zh-only">以上建议根据你的自检结果生成，每天进步一点点，坚持最重要！</span><span class="en-only" style="display:none">Suggestions are based on your self-check results. Small daily progress adds up — consistency is key!</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 心肺 ══ -->
+<div class="section" id="sec-cardio">
+  <div class="card">
+    <div class="card-title"><span class="icon">❤️</span><span class="zh-only"> 心肺功能：一切健康的基础</span><span class="en-only" style="display:none"> Cardiovascular: The Foundation of Health</span></div>
+    <ul class="bullet-list">
+      <li><span class="dot">▸</span><span class="zh-only">心血管就像身体的发动机，心肺功能差，患高血压、糖尿病等慢性病风险显著升高</span><span class="en-only" style="display:none">Your cardiovascular system is your body's engine — poor cardio significantly raises risk of hypertension, diabetes, and chronic disease.</span></li>
+      <li><span class="dot">▸</span><span class="zh-only">高强度训练需要有一定基础才能做。运动基础薄弱时贸然做高强度训练，反而可能增加风险。建议先把心肺功能练到及格线以上，再考虑进阶。</span><span class="en-only" style="display:none">High-intensity training requires a fitness foundation. Attempting it without one increases risk rather than reducing it. Build your cardio to at least the passing level first.</span></li>
+      <li><span class="dot">▸</span><span class="zh-only">关键指标是<strong>最大摄氧量（VO₂max）</strong>，用心率手环可以测</span><span class="en-only" style="display:none">Key metric: <strong>VO₂max</strong>, measurable with a fitness band or smartwatch.</span></li>
+    </ul>
+    <div class="alert">
+      <span class="emoji">📊</span>
+      <p><span class="zh-only">参考标准：男性及格≥40，女性及格≥36（低于此值要重视）；54+为优秀；顶级运动员可达88</span><span class="en-only" style="display:none">Standards: Men ≥40, Women ≥36 to pass; 54+ is good; elite athletes reach 88.</span></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🧮</span><span class="zh-only"> 卡氏公式计算器</span><span class="en-only" style="display:none"> Target Heart Rate Calculator</span></div>
+    <div class="form-row">
+      <label><span class="zh-only">年龄</span><span class="en-only" style="display:none">Age</span></label>
+      <input type="number" id="calc-age" class="form-input" placeholder="50" min="1" max="120">
+      <span><span class="zh-only">岁</span><span class="en-only" style="display:none">yrs</span></span>
+    </div>
+    <div class="form-row">
+      <label><span class="zh-only">静息心率</span><span class="en-only" style="display:none">Resting HR</span></label>
+      <input type="number" id="calc-rest-hr" class="form-input" placeholder="60" min="40" max="120">
+      <span><span class="zh-only">次/分</span><span class="en-only" style="display:none">bpm</span></span>
+    </div>
+    <div class="form-row">
+      <label><span class="zh-only">运动强度</span><span class="en-only" style="display:none">Intensity</span></label>
+      <input type="number" id="calc-intensity" class="form-input" placeholder="45" min="10" max="95" value="45">
+      <span>%</span>
+    </div>
+    <div style="font-size:12px;color:#888;margin-bottom:12px;">
+      <span class="zh-only">强度参考：35-55% = 减脂区间 | 55-70% = 心肺训练 | 70%+ = 高强度（慎用）</span>
+      <span class="en-only" style="display:none">35-55% = fat burn | 55-70% = cardio training | 70%+ = high intensity (use caution)</span>
+    </div>
+    <button class="btn-calc" onclick="calcHeartRate()"><span class="zh-only">🩺 计算目标心率</span><span class="en-only" style="display:none">🩺 Calculate Target HR</span></button>
+
+    <div class="result-box" id="hr-result" style="display:none">
+      <div class="big-num" id="hr-output">—</div>
+      <div class="label"><span class="zh-only">次/分钟</span><span class="en-only" style="display:none">bpm</span></div>
+      <div class="sub" id="hr-desc"></div>
+    </div>
+
+    <div class="formula-banner">
+      <span class="zh-only"><strong>📐 卡氏公式：</strong><br>目标心率 = (220 − 年龄 − 静息心率) × 强度% + 静息心率<br><br>💡 更准确替代：Tanaka公式 <code>208 − 0.7 × 年龄</code> = 最大心率，再乘以强度%得出目标心率</span>
+      <span class="en-only" style="display:none"><strong>📐 Karvonen Formula:</strong><br>Target HR = (220 − Age − Resting HR) × Intensity% + Resting HR<br><br>💡 More accurate: Tanaka formula <code>208 − 0.7 × Age</code> = Max HR, then × intensity%</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🏃</span><span class="zh-only"> 训练要点</span><span class="en-only" style="display:none"> Training Guidelines</span></div>
+    <ul class="bullet-list">
+      <li><span class="dot">▸</span><strong><span class="zh-only">强度判断：</span><span class="en-only" style="display:none">Gauge intensity:</span></strong><span class="zh-only">稍微喘气，但还能说完整句子；上气不接下气 = 过量，立刻停下</span><span class="en-only" style="display:none">You can talk but slightly breathless = right intensity. Out of breath = too much, stop.</span></li>
+      <li><span class="dot">▸</span><strong><span class="zh-only">推荐运动：</span><span class="en-only" style="display:none">Recommended:</span></strong><span class="zh-only">快走 / 跑步机坡走（速度4-6公里/小时）</span><span class="en-only" style="display:none">Brisk walking / incline treadmill walking (4-6 km/h)</span></li>
+      <li><span class="dot">▸</span><strong><span class="zh-only">训练频率：</span><span class="en-only" style="display:none">Frequency:</span></strong><span class="zh-only">练一天休息一天，休息日可以慢走做积极恢复</span><span class="en-only" style="display:none">Train one day, rest one day; active recovery (slow walk) on rest days</span></li>
+    </ul>
+    <div class="alert">
+      <span class="emoji">⚠️</span>
+      <p><span class="zh-only">重要前提：必须睡好觉！睡眠不好的时候不要做强度训练，等状态恢复了再练。</span><span class="en-only" style="display:none">Sleep is foundational. Never do intense training when sleep-deprived — wait until you recover.</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 柔韧 ══ -->
+<div class="section" id="sec-flexibility">
+  <div class="card">
+    <div class="card-title"><span class="icon">🤸</span><span class="zh-only"> 为什么柔韧度很重要</span><span class="en-only" style="display:none"> Why Flexibility Matters</span></div>
+    <ul class="bullet-list">
+      <li><span class="dot">▸</span><span class="zh-only">柔韧度下降会出现：梳头挠后背困难、手臂抬不起来（五十肩）</span><span class="en-only" style="display:none">Loss of flexibility causes difficulty reaching behind your back, frozen shoulder, and reduced range of motion.</span></li>
+      <li><span class="dot">▸</span><span class="zh-only">关节要在灵活和稳定之间找平衡，影响日常生活的质量</span><span class="en-only" style="display:none">Joints need a balance of mobility and stability — flexibility directly affects quality of daily life.</span></li>
+      <li><span class="dot">▸</span><span class="zh-only">柔韧度改善比肌肉训练更快，先练这个更容易获得成就感</span><span class="en-only" style="display:none">Flexibility improves faster than strength — start here for early wins and motivation.</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📐</span><span class="zh-only"> 体前屈测试</span><span class="en-only" style="display:none"> Sit-and-Reach Test</span></div>
+    <p style="font-size:14px;margin-bottom:12px;"><span class="zh-only">坐在地上，双腿伸直，体前屈手臂尽量往前伸：</span><span class="en-only" style="display:none">Sit on the floor, legs straight, reach forward as far as possible:</span></p>
+    <ul class="bullet-list">
+      <li><span class="dot">✅</span><span class="zh-only">能到脚尖甚至更前 → 柔韧度良好</span><span class="en-only" style="display:none">At or past toes → Good flexibility</span></li>
+      <li><span class="dot">⚠️</span><span class="zh-only">只能到膝盖 → 需要重点改善</span><span class="en-only" style="display:none">Only to shins/knees → Needs focused improvement</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🔄</span><span class="zh-only"> 两种拉伸怎么选</span><span class="en-only" style="display:none"> Static vs Dynamic Stretching</span></div>
+    <table class="check-table">
+      <thead><tr><th><span class="zh-only">类型</span><span class="en-only" style="display:none">Type</span></th><th><span class="zh-only">做法</span><span class="en-only" style="display:none">Method</span></th><th><span class="zh-only">何时做</span><span class="en-only" style="display:none">When</span></th></tr></thead>
+      <tbody>
+        <tr><td><strong><span class="zh-only">静态拉伸</span><span class="en-only" style="display:none">Static</span></strong></td><td><span class="zh-only">保持动作静止 15-30秒</span><span class="en-only" style="display:none">Hold position 15-30 sec</span></td><td>✅ <span class="zh-only">运动结束后</span><span class="en-only" style="display:none">After exercise</span></td></tr>
+        <tr><td><strong><span class="zh-only">动态拉伸</span><span class="en-only" style="display:none">Dynamic</span></strong></td><td><span class="zh-only">连续做拉伸动作 活动全关节</span><span class="en-only" style="display:none">Moving stretch through range</span></td><td>✅ <span class="zh-only">运动前</span><span class="en-only" style="display:none">Before exercise</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">✅</span><span class="zh-only"> 正确的完整运动顺序</span><span class="en-only" style="display:none"> The Correct Workout Sequence</span></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-content">
+          <div class="step-title"><span class="zh-only">① 泡沫轴放松</span><span class="en-only" style="display:none">① Foam Roll</span></div>
+          <div class="step-desc"><span class="zh-only">先打开伏案工作积攒的肌肉"小结"，滚动放松</span><span class="en-only" style="display:none">Release muscle knots from desk work with a foam roller</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-content">
+          <div class="step-title"><span class="zh-only">② 动态拉伸</span><span class="en-only" style="display:none">② Dynamic Stretch</span></div>
+          <div class="step-desc"><span class="zh-only">普通人10-20分钟，活动全身关节，提升体温、降低损伤风险</span><span class="en-only" style="display:none">10-20 min for general population; warm up joints and raise body temp</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-content">
+          <div class="step-title"><span class="zh-only">③ 专项训练</span><span class="en-only" style="display:none">③ Main Workout</span></div>
+          <div class="step-desc"><span class="zh-only">心肺训练或力量训练放在这一步</span><span class="en-only" style="display:none">Cardio or strength training here</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-content">
+          <div class="step-title"><span class="zh-only">④ 静态伸展</span><span class="en-only" style="display:none">④ Static Stretch</span></div>
+          <div class="step-desc"><span class="zh-only">运动结束后做，重点拉伸平时僵硬的部位，每个动作保持15-30秒</span><span class="en-only" style="display:none">After workout; stretch tight areas 15-30 seconds each</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 体重 ══ -->
+<div class="section" id="sec-weight">
+  <div class="card">
+    <div class="card-title"><span class="icon">🚫</span><span class="zh-only"> 先避开这三个减肥坑</span><span class="en-only" style="display:none"> Avoid These 3 Fat-Loss Traps</span></div>
+    <table class="check-table">
+      <thead><tr><th><span class="zh-only">误区</span><span class="en-only" style="display:none">Trap</span></th><th><span class="zh-only">为什么错</span><span class="en-only" style="display:none">Why It's Wrong</span></th></tr></thead>
+      <tbody>
+        <tr><td><span class="zh-only">靠增肌减肥</span><span class="en-only" style="display:none">Building muscle to lose fat</span></td><td><span class="zh-only">胖人肌肉总量并不少，每增1公斤肌肉每天只能多消耗约50大卡，效率极低</span><span class="en-only" style="display:none">People with high body fat already have substantial muscle. Each kg of new muscle only burns ~50 extra kcal/day — extremely inefficient for fat loss.</span></td></tr>
+        <tr><td><span class="zh-only">只做HIIT</span><span class="en-only" style="display:none">HIIT-only approach</span></td><td><span class="zh-only">高强度时氧气供应不足，脂肪供能效率不如低强度持续有氧；HIIT更适合作为进阶训练</span><span class="en-only" style="display:none">At high intensity, oxygen supply is insufficient — fat is burned less efficiently. HIIT is best as an advanced training phase, not a starting point.</span></td></tr>
+        <tr><td><span class="zh-only">节食减肥</span><span class="en-only" style="display:none">Crash dieting</span></td><td><span class="zh-only">食欲压不住，一定会报复性反弹；还会造成不可逆的免疫力下降</span><span class="en-only" style="display:none">Hunger cannot be suppressed long-term — binges are inevitable. Severe restriction also causes irreversible immune decline.</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🍽️</span><span class="zh-only"> 饮食宏量计算器</span><span class="en-only" style="display:none"> Macro Calculator</span></div>
+    <div class="form-row">
+      <label><span class="zh-only">体重</span><span class="en-only" style="display:none">Weight</span></label>
+      <input type="number" id="calc-weight" class="form-input" placeholder="65" min="20" max="200">
+      <span>kg</span>
+    </div>
+    <div class="form-row">
+      <label><span class="zh-only">性别</span><span class="en-only" style="display:none">Gender</span></label>
+      <select id="calc-gender" class="form-input" style="max-width:140px">
+        <option value="female"><span class="zh-only">女</span><span class="en-only" style="display:none">Female</span></option>
+        <option value="male"><span class="zh-only">男</span><span class="en-only" style="display:none">Male</span></option>
+      </select>
+    </div>
+    <button class="btn-calc" onclick="calcDiet()"><span class="zh-only">🍽️ 计算每日摄入量</span><span class="en-only" style="display:none">🍽️ Calculate Daily Intake</span></button>
+
+    <div id="diet-result" style="display:none">
+      <div class="result-box" style="margin-top:14px">
+        <div style="font-size:13px;color:var(--primary-dark);font-weight:600;margin-bottom:6px;"><span class="zh-only">每日各营养素摄入量</span><span class="en-only" style="display:none">Daily Macro Targets</span></div>
+        <div class="sub" id="diet-desc"></div>
+      </div>
+      <table class="result-table">
+        <tr><td><span class="zh-only">🍚 碳水化合物</span><span class="en-only" style="display:none">🍚 Carbs</span></td><td id="carb-out">— g</td></tr>
+        <tr><td><span class="zh-only">🥩 蛋白质</span><span class="en-only" style="display:none">🥩 Protein</span></td><td id="protein-out">— g</td></tr>
+        <tr><td><span class="zh-only">🫒 脂肪</span><span class="en-only" style="display:none">🫒 Fat</span></td><td id="fat-out">— g</td></tr>
+      </table>
+      <div id="diet-formula" style="margin-top:10px;padding:10px 12px;background:#f5f5f0;border-radius:8px;font-size:12px;color:#888;line-height:1.8;display:none"></div>
+      <div class="alert" style="margin-top:12px">
+        <span class="emoji">💡</span>
+        <p><span class="zh-only">多肉蛋奶这类高蛋白食物，饱腹感强、更扛饿；粗粮也要控制量，一个中等红薯≈两碗米饭！</span><span class="en-only" style="display:none">Prioritize high-protein foods (meat, eggs, dairy) for satiety. Watch whole grain portions — one medium sweet potato ≈ two bowls of rice!</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">⚖️</span><span class="zh-only"> 健康体脂参考</span><span class="en-only" style="display:none"> Healthy Body Fat Ranges</span></div>
+    <table class="check-table">
+      <thead><tr><th><span class="zh-only">性别</span><span class="en-only" style="display:none">Gender</span></th><th><span class="zh-only">健康范围</span><span class="en-only" style="display:none">Healthy Range</span></th><th><span class="zh-only">备注</span><span class="en-only" style="display:none">Note</span></th></tr></thead>
+      <tbody>
+        <tr><td><span class="zh-only">女性</span><span class="en-only" style="display:none">Female</span></td><td>20%-25%</td><td><span class="zh-only">低于17%会影响生理周期</span><span class="en-only" style="display:none">&lt;17% may disrupt menstrual cycle</span></td></tr>
+        <tr><td><span class="zh-only">男性</span><span class="en-only" style="display:none">Male</span></td><td>15%-20%</td><td>—</td></tr>
+      </tbody>
+    </table>
+    <div class="formula-banner" style="margin-top:14px">
+      <span class="zh-only">减脂核心原则：饮食控制为主，低强度运动为辅<br>脂肪燃烧需要氧气 → 低强度运动氧气充足 → 燃脂效率最高</span>
+      <span class="en-only" style="display:none">Core principle: Diet first, low-intensity exercise second.<br>Burning fat requires oxygen → low-intensity exercise has ample oxygen → highest fat-burning efficiency.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 肌肉 ══ -->
+<div class="section" id="sec-muscle">
+  <div class="card">
+    <div class="card-title"><span class="icon">📊</span><span class="zh-only"> 肌肉的三个维度</span><span class="en-only" style="display:none"> Three Dimensions of Muscle</span></div>
+    <ul class="bullet-list">
+      <li><span class="dot">①</span><strong><span class="zh-only">肌肉耐力：</span><span class="en-only" style="display:none">Muscular endurance:</span></strong><span class="zh-only">肌肉能维持动作的时间（如平板支撑）</span><span class="en-only" style="display:none">How long muscles can sustain an effort (e.g. plank hold)</span></li>
+      <li><span class="dot">②</span><strong><span class="zh-only">肌肉力量：</span><span class="en-only" style="display:none">Muscular strength:</span></strong><span class="zh-only">肌肉能发出的最大力量（如一次深蹲的最大重量）</span><span class="en-only" style="display:none">Maximum force muscles can produce (e.g. max squat weight)</span></li>
+      <li><span class="dot">③</span><strong><span class="zh-only">肌肉量：</span><span class="en-only" style="display:none">Muscle mass:</span></strong><span class="zh-only">肌肉总重量（举铁主要练这个维度）</span><span class="en-only" style="display:none">Total muscle weight (primarily built through resistance training)</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🦵</span><span class="zh-only"> 肌肉耐力：上坡走路</span><span class="en-only" style="display:none"> Endurance: Incline Walking</span></div>
+    <p style="font-size:14px;margin-bottom:10px;"><strong><span class="zh-only">自测：</span><span class="en-only" style="display:none">Self-test:</span></strong><span class="zh-only">无负重深蹲，匀速蹲起30次，做不到说明需要练。</span><span class="en-only" style="display:none">Bodyweight squat: 30 reps at steady pace. If you can't, this training is for you.</span></p>
+    <ul class="bullet-list">
+      <li><span class="dot">▸</span><strong><span class="zh-only">核心训练：</span><span class="en-only" style="display:none">Core exercise:</span></strong><span class="zh-only">上坡走路，速度4-6公里/小时，站在跑步机两个把手中间</span><span class="en-only" style="display:none">Incline walking, 4-6 km/h, standing between treadmill handles</span></li>
+      <li><span class="dot">▸</span><strong><span class="zh-only">姿势要点：</span><span class="en-only" style="display:none">Form:</span></strong><span class="zh-only">肚脐一直指向前方，保持髋关节稳定</span><span class="en-only" style="display:none">Keep navel pointing forward, hips stable</span></li>
+      <li><span class="dot">▸</span><strong><span class="zh-only">加大步幅：</span><span class="en-only" style="display:none">Bigger strides:</span></strong><span class="zh-only">让更多肌肉参与，训练效率更高</span><span class="en-only" style="display:none">Engages more muscles, higher efficiency</span></li>
+      <li><span class="dot">▸</span><strong><span class="zh-only">脚尖向前：</span><span class="en-only" style="display:none">Toes forward:</span></strong><span class="zh-only">别内八外八，避免膝盖损伤</span><span class="en-only" style="display:none">Avoid toe-in/toe-out to prevent knee injury</span></li>
+      <li><span class="dot">▸</span><strong><span class="zh-only">扁平足：</span><span class="en-only" style="display:none">Flat feet:</span></strong><span class="zh-only">可以买50-200元的鞋垫调整</span><span class="en-only" style="display:none">Orthotic insoles (~$10-40) can help</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">💪</span><span class="zh-only"> 肌肉力量：为什么要练</span><span class="en-only" style="display:none"> Strength Training: Why It Matters</span></div>
+    <ul class="bullet-list">
+      <li><span class="dot">▸</span><strong><span class="zh-only">应对突发：</span><span class="en-only" style="display:none">Emergency response:</span></strong><span class="zh-only">地铁急刹能稳得住、摔倒时能自己撑起来</span><span class="en-only" style="display:none">Stay steady on a sudden subway stop; get up after a fall</span></li>
+      <li><span class="dot">▸</span><strong><span class="zh-only">保护关节：</span><span class="en-only" style="display:none">Protect joints:</span></strong><span class="zh-only">跑步时膝盖要承受3倍体重，力量够才不会伤关节</span><span class="en-only" style="display:none">Running loads knees with 3× body weight; strength prevents injury</span></li>
+      <li><span class="dot">▸</span><strong><span class="zh-only">抗衰老：</span><span class="en-only" style="display:none">Anti-aging:</span></strong><span class="zh-only">从30岁到70岁，臀大肌、大腿、腹肌、背肌的粗细和力量会掉一半，比化妆品有效得多</span><span class="en-only" style="display:none">From age 30 to 70, glutes, quads, abs, and back muscles halve in size and strength. More effective than cosmetics.</span></li>
+    </ul>
+    <div style="margin-top:14px">
+      <div style="font-size:13px;font-weight:600;color:var(--primary-dark);margin-bottom:8px;"><span class="zh-only">合格标准</span><span class="en-only" style="display:none">Passing Standards</span></div>
+      <table class="check-table">
+        <thead><tr><th><span class="zh-only">测试项目</span><span class="en-only" style="display:none">Test</span></th><th><span class="zh-only">合格要求</span><span class="en-only" style="display:none">Requirement</span></th></tr></thead>
+        <tbody>
+          <tr><td><span class="zh-only">跪姿俯卧撑</span><span class="en-only" style="display:none">Knee push-up</span></td><td><span class="zh-only">能连续完成20个标准动作</span><span class="en-only" style="display:none">20 consecutive good reps</span></td></tr>
+          <tr><td><span class="zh-only">引体向上 / 坐姿下拉</span><span class="en-only" style="display:none">Pull-up / Lat pulldown</span></td><td><span class="zh-only">能拉动自身60%的重量</span><span class="en-only" style="display:none">Pull 60% of bodyweight</span></td></tr>
+          <tr><td><span class="zh-only">负重深蹲</span><span class="en-only" style="display:none">Loaded squat</span></td><td><span class="zh-only">能负重和体重相同的重量做一次</span><span class="en-only" style="display:none">One rep with bodyweight load</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="alert">
+      <span class="emoji">⚠️</span>
+      <p><span class="zh-only">重要提示：每组动作必须练到力竭（做到再也做不动为止）。心肺功能不好先别练力量，先把心肺练好！</span><span class="en-only" style="display:none">Key: train to failure each set. If cardio is poor, build cardio first before adding strength training!</span></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">✨</span><span class="zh-only"> 塑形小提示</span><span class="en-only" style="display:none"> Body Shaping Tips</span></div>
+    <ul class="bullet-list">
+      <li><span class="dot">▸</span><strong><span class="zh-only">腹肌 / 马甲线：</span><span class="en-only" style="display:none">Abs / V-taper:</span></strong><span class="zh-only">前提是体脂足够低，不然线条藏在脂肪里根本看不见</span><span class="en-only" style="display:none">Requires low body fat — otherwise the lines stay hidden under fat</span></li>
+      <li><span class="dot">▸</span><strong><span class="zh-only">翘臀：</span><span class="en-only" style="display:none">Glute raise:</span></strong><span class="zh-only">上坡走就能练臀大肌；也可以做壶铃摇摆：女生12kg、男生20kg，每周3天，每次至少70次（可分组完成，如 20×3 组或 10×7 组，组间休息30-60秒）</span><span class="en-only" style="display:none">Incline walking builds glutes; kettlebell swings also work: women 12kg, men 20kg, 3 days/week, 70+ reps (broken into sets, e.g. 20×3 or 10×7 with 30-60s rest)</span></li>
+      <li><span class="dot">▸</span><strong><span class="zh-only">小腿粗：</span><span class="en-only" style="display:none">Calf thickness:</span></strong><span class="zh-only">大多是发力习惯问题，泡沫轴放松 + 动态拉伸 + 调整走路跑步发力</span><span class="en-only" style="display:none">Usually a movement pattern issue; address with foam roll + dynamic stretch + corrected gait</span></li>
+      <li><span class="dot">▸</span><strong><span class="zh-only">背肌：</span><span class="en-only" style="display:none">Back muscles:</span></strong><span class="zh-only">年纪大了不驼背的关键，要坚持练</span><span class="en-only" style="display:none">Key to preventing stooping as you age — stay consistent</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══ 总结 ══ -->
+<div class="section" id="sec-summary">
+  <div class="card">
+    <div class="card-title"><span class="icon">🏆</span><span class="zh-only"> 健康管理优先级</span><span class="en-only" style="display:none"> Health Priority Matrix</span></div>
+    <div class="priority-grid">
+      <div class="priority-card top">
+        <div class="num">1</div>
+        <div class="title">❤️ <span class="zh-only">心肺功能</span><span class="en-only" style="display:none">Cardio</span></div>
+        <div class="desc"><span class="zh-only">一切的基础</span><span class="en-only" style="display:none">Foundation of all health</span></div>
+      </div>
+      <div class="priority-card">
+        <div class="num">2</div>
+        <div class="title">🤸 <span class="zh-only">柔韧度</span><span class="en-only" style="display:none">Flexibility</span></div>
+        <div class="desc"><span class="zh-only">先给正向反馈</span><span class="en-only" style="display:none">Quick wins, fast progress</span></div>
+      </div>
+      <div class="priority-card">
+        <div class="num">3</div>
+        <div class="title">⚖️ <span class="zh-only">控制体重</span><span class="en-only" style="display:none">Weight</span></div>
+        <div class="desc"><span class="zh-only">饮食为主，运动为辅</span><span class="en-only" style="display:none">Diet first, exercise second</span></div>
+      </div>
+      <div class="priority-card">
+        <div class="num">4</div>
+        <div class="title">💪 <span class="zh-only">肌肉训练</span><span class="en-only" style="display:none">Strength</span></div>
+        <div class="desc"><span class="zh-only">好看 + 抗衰老</span><span class="en-only" style="display:none">Aesthetics + longevity</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📌</span><span class="zh-only"> 所有人都要遵守的通用原则</span><span class="en-only" style="display:none"> Universal Rules for Everyone</span></div>
+    <div class="summary-principle">
+      <div class="num-badge">1</div>
+      <div class="content"><span class="zh-only">别一上来就做高强度运动，先摸清楚自己的身体情况</span><span class="en-only" style="display:none">Don't start with high-intensity training. Know your body first.</span></div>
+    </div>
+    <div class="summary-principle">
+      <div class="num-badge">2</div>
+      <div class="content"><strong><span class="zh-only">睡眠是健康的基础，</span><span class="en-only" style="display:none">Sleep is the foundation of health,</span></strong><span class="zh-only">睡不好绝对不要做强度训练</span><span class="en-only" style="display:none">never train intensely when sleep-deprived.</span></div>
+    </div>
+    <div class="summary-principle">
+      <div class="num-badge">3</div>
+      <div class="content"><strong><span class="zh-only">走路是最超值的运动：</span><span class="en-only" style="display:none">Walking is the best ROI exercise:</span></strong><span class="zh-only">对心肺、体重、柔韧度、肌肉耐力全有帮助</span><span class="en-only" style="display:none">benefits cardio, weight, flexibility, and endurance.</span></div>
+    </div>
+    <div class="summary-principle">
+      <div class="num-badge">4</div>
+      <div class="content"><span class="zh-only">循序渐进：根据心率调强度，能力提升了再慢慢加难度</span><span class="en-only" style="display:none">Progressive overload: adjust intensity by heart rate, increase difficulty as you improve.</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">💬</span><span class="zh-only"> 家庭一起坚持</span><span class="en-only" style="display:none"> Keep Each Other Accountable</span></div>
+    <p style="font-size:14px;color:var(--text-light);"><span class="zh-only">如果大家跟着练有变化，直接在群里打卡呀，互相监督更容易坚持 😊</span><span class="en-only" style="display:none">Share your progress in the group chat! Accountability makes consistency easier. 😊</span></p>
+  </div>
+</div>
+
+<!-- ══ FAQ ══ -->
+<div class="section" id="sec-faq">
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      <span class="zh-only">我每天都散步，算不算有效运动？</span><span class="en-only" style="display:none">I walk every day — is that effective exercise?</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="faq-a">
+      <div class="faq-a-content">
+        <p><span class="zh-only">✅ 如果走的时候心率能到你的目标区间，隔天坚持，就算有效。</span><span class="en-only" style="display:none">✅ Yes, if your heart rate reaches the target zone during the walk and you keep at it every other day.</span></p>
+        <p><span class="zh-only">如果只是慢悠悠散步不喘气，只能算日常活动，达不到训练效果。</span><span class="en-only" style="display:none">If you're barely out of breath, it's just daily activity — not training.</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      <span class="zh-only">我七八十岁了，还能练吗？</span><span class="en-only" style="display:none">I'm 70-80 years old — can I still train?</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="faq-a">
+      <div class="faq-a-content">
+        <p><span class="zh-only">✅ 从最低强度开始，先做自检，从每天10分钟快走起步，循序渐进。</span><span class="en-only" style="display:none">✅ Start at the lowest intensity. Do the self-check first, then begin with 10-minute brisk walks daily.</span></p>
+        <p><span class="zh-only">动就比不动好，关键是不要勉强，选择适合自己的强度。</span><span class="en-only" style="display:none">Movement is always better than none. The key is choosing an appropriate intensity.</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      <span class="zh-only">一定要买心率表吗？</span><span class="en-only" style="display:none">Do I need a heart rate monitor?</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="faq-a">
+      <div class="faq-a-content">
+        <p><span class="zh-only">✅ 没有也没关系，用体感判断就好：</span><span class="en-only" style="display:none">✅ Not necessary — use the talk test instead:</span></p>
+        <p><span class="zh-only">"稍微喘气，但能说完整句子" = 合适强度<br>"上气不接下气" = 过量了，停下来歇一歇</span><span class="en-only" style="display:none">"Slightly breathless but can talk in full sentences" = right intensity<br>"Completely out of breath" = too much, stop and rest</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      <span class="zh-only">我有高血压 / 膝盖不好，可以练吗？</span><span class="en-only" style="display:none">I have high blood pressure / bad knees — can I train?</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="faq-a">
+      <div class="faq-a-content">
+        <p><span class="zh-only">✍️ 先咨询你的医生，从更低强度开始。</span><span class="en-only" style="display:none">✍️ Consult your doctor first. Start at the lowest possible intensity.</span></p>
+        <p><span class="zh-only">用平地走代替上坡走，循序渐进，一定不要勉强。</span><span class="en-only" style="display:none">Use flat walking instead of incline. Never push through pain or discomfort.</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      <span class="zh-only">蛋白质吃多了会不会伤身体？</span><span class="en-only" style="display:none">Does eating too much protein harm the body?</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="faq-a">
+      <div class="faq-a-content">
+        <p><span class="zh-only">✅ 正常范围内的蛋白质摄入不用担心。多余的蛋白质会被身体代谢掉，不会直接转化成脂肪。</span><span class="en-only" style="display:none">✅ Normal protein intake is safe. Excess protein is metabolized — it doesn't convert directly to body fat.</span></p>
+        <p><span class="zh-only">反而是高蛋白食物饱腹感强，有助于控制整体热量摄入。</span><span class="en-only" style="display:none">High-protein foods keep you full longer, making it easier to manage total calorie intake.</span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      <span class="zh-only">跑步和走路哪个更减肥？</span><span class="en-only" style="display:none">Running vs. walking — which is better for fat loss?</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="faq-a">
+      <div class="faq-a-content">
+        <p><span class="zh-only">✅ <strong>走路更推荐。</strong>对大多数人来说，快走更容易长期坚持，而且低强度走路燃脂效率高于跑步。</span><span class="en-only" style="display:none">✅ <strong>Walking is recommended.</strong> Brisk walking is more sustainable for most people and has higher fat-burning efficiency than running.</span></p>
+        <p><span class="zh-only">跑步时氧气供应相对不足，脂肪消耗比例反而下降。先把走路练好，再考虑跑步。</span><span class="en-only" style="display:none">During running, oxygen supply is relatively insufficient — fat is burned at a lower proportion. Master walking first.</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<div class="footer">
+  <img class="footer-logo" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+Cjxzdmcgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDMwNSAzNzIiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM6c2VyaWY9Imh0dHA6Ly93d3cuc2VyaWYuY29tLyIgc3R5bGU9ImZpbGwtcnVsZTpldmVub2RkO2NsaXAtcnVsZTpldmVub2RkO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDoyOyI+CiAgICA8ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLC0zNzQuNzQzLC0xNTMzLjk0KSI+CiAgICAgICAgPGcgdHJhbnNmb3JtPSJtYXRyaXgoMC4xMjU3NDIsMS4zNzY4NmUtMzMsMCwwLjQyMzg2Myw5OC44NDI1LDE2OTMuMzIpIj4KICAgICAgICAgICAgPHBhdGggZD0iTTQ2MTYuMjMsMTY4LjgwNUw0NjE2LjIzLDIxNi4zTDQyNDcuNCwyMTYuM0w0MjQ3LjQsMjcyLjAxNUw0NDE3LjgzLDI3Mi4wMTVMNDQxNy44MywzMTkuNTFMNDI0Ny40LDMxOS41MUw0MjQ3LjQsMzc1LjIyNUw0NjE2LjIzLDM3NS4yMjVMNDYxNi4yMyw0MjIuNzJMNDA4Ny4zMSw0MjIuNzJMNDA4Ny4zMSwxNjguODA1TDQ2MTYuMjMsMTY4LjgwNVpNMjM1NC4yOCwyNzIuMDE1TDI1NjMuMDEsMjcyLjAxNUwyNTYzLjAxLDE2OC44MDVMMjcyMy4xMSwxNjguODA1TDI3MjMuMTEsNDIyLjcyTDI1NjMuMDEsNDIyLjcyTDI1NjMuMDEsMzE5LjUxTDIzNTQuMjgsMzE5LjUxTDIzNTQuMjgsNDIyLjcyTDIxOTQuMTgsNDIyLjcyTDIxOTQuMTgsMTY4LjgwNUwyMzU0LjI4LDE2OC44MDVMMjM1NC4yOCwyNzIuMDE1Wk0zNDQ0LjI4LDM0My44ODZDMzQ0NC4yOCwzMDAuMzc2IDM1NjMuMzYsMjY1LjA1MSAzNzEwLjAzLDI2NS4wNTFDMzk1Ni42OSwyNjUuMDUxIDM5NzUuNzcsMzAwLjM3NiAzOTc1Ljc3LDM0My44ODZDMzk3NS43NywzODcuMzk2IDM4NTYuNjksNDIyLjcyIDM3MTAuMDMsNDIyLjcyQzM2NzIuNDksNDIyLjcyIDM2MzYuNzcsNDIwLjQwNyAzNjA0LjM4LDQxNi4yMzVMMzYwNC4zOCw1MDAuNzk2TDM0NDQuMjgsNTAwLjc5NkwzNDQ0LjI4LDM0My44ODZaTTI5MDMuMTYsODcuNzYxTDI5MDMuMTYsLTM3Ni4wMTdMMzkwNy4yNiwtMzc2LjAxN0wzOTA3LjI2LDg3Ljc2MUwyOTAzLjE2LDg3Ljc2MVpNMzEwNS40MiwtMzQ2LjUyNkwzMDAyLjU3LC0zNDYuNTI2TDMwMDIuNTcsLTMxNi4wMTVDMzAzMS43LC0zMjcuNTk4IDMwNjYuMzcsLTMzNy44ODQgMzEwNS40MiwtMzQ2LjUyNlpNMzgwNy44NSwtMzE2LjAxNUwzODA3Ljg1LC0zNDYuNTI2TDM3MDUsLTM0Ni41MjZDMzc0NC4wNCwtMzM3Ljg4NCAzNzc4LjcyLC0zMjcuNTk4IDM4MDcuODUsLTMxNi4wMTVaTTM3MDUsNTguMjcxTDM4MDcuODUsNTguMjcxTDM4MDcuODUsMjcuNzZDMzc3OC43MiwzOS4zNDMgMzc0NC4wNCw0OS42MjkgMzcwNSw1OC4yNzFaTTMwMDIuNTcsMjcuNzZMMzAwMi41Nyw1OC4yNzFMMzEwNS40Miw1OC4yNzFDMzA2Ni4zNyw0OS42MjkgMzAzMS43LDM5LjM0MyAzMDAyLjU3LDI3Ljc2Wk0zODA3Ljg1LC0yMjcuMDhDMzgwNy44NSwtMjkzLjAwNCAzNjI3LjQzLC0zNDYuNTI2IDM0MDUuMjEsLTM0Ni41MjZDMzE4Mi45OSwtMzQ2LjUyNiAzMDAyLjU3LC0yOTMuMDA0IDMwMDIuNTcsLTIyNy4wOEMzMDAyLjU3LC0yMDUuNTc2IDMwMjEuNzcsLTE4NS4zOTEgMzA1NS4zNSwtMTY3Ljk1M0MzMTQ1LjgsLTE5NC4wMzkgMzI2OS4yMiwtMjEwLjExMiAzNDA1LjIxLC0yMTAuMTEyQzM1NDEuMTksLTIxMC4xMTIgMzY2NC42MiwtMTk0LjAzOSAzNzU1LjA3LC0xNjcuOTUzQzM3ODguNjUsLTE4NS4zOTEgMzgwNy44NSwtMjA1LjU3NiAzODA3Ljg1LC0yMjcuMDhaTTM0MDUuMjEsNTguMjcxQzM2MjcuNDMsNTguMjcxIDM4MDcuODUsNC43NDkgMzgwNy44NSwtNjEuMTc1QzM4MDcuODUsLTgyLjY4IDM3ODguNjUsLTEwMi44NjQgMzc1NS4wNywtMTIwLjMwMkMzNjY0LjYyLC05NC4yMTcgMzU0MS4xOSwtNzguMTQ0IDM0MDUuMjEsLTc4LjE0NEMzMjY5LjIyLC03OC4xNDQgMzE0NS44LC05NC4yMTcgMzA1NS4zNSwtMTIwLjMwMkMzMDIxLjc3LC0xMDIuODY0IDMwMDIuNTcsLTgyLjY4IDMwMDIuNTcsLTYxLjE3NUMzMDAyLjU3LDQuNzQ5IDMxODIuOTksNTguMjcxIDM0MDUuMjEsNTguMjcxWk0zNjM2Ljc5LC0xNTguODczQzM1NzEuMjcsLTE3Mi41NzIgMzQ5MS4zOCwtMTgwLjYyMSAzNDA1LjIxLC0xODAuNjIxQzMzMTkuMDMsLTE4MC42MjEgMzIzOS4xNCwtMTcyLjU3MiAzMTczLjYyLC0xNTguODczTDQzNjMuNzksLTE1OC44NzNaTTMxNzMuNjIsLTEyOS4zODJDMzIzOS4xNCwtMTE1LjY4MyAzMzE5LjAzLC0xMDcuNjM0IDM0MDUuMjEsLTEwNy42MzRDMzQ5MS4zOCwtMTA3LjYzNCAzNTcxLjI3LC0xMTUuNjgzIDM2MzYuNzksLTEyOS4zODJMMzE3My42MiwtMTI5LjM4MlpNMzA4Ni45NywyNjUuMDUxQzMyMzMuNjQsMjY1LjA1MSAzMzUyLjcyLDMwMC4zNzYgMzM1Mi43MiwzNDMuODg2QzMzNTIuNzIsMzg3LjM5NiAzMjMzLjY0LDQyMi43MiAzMDg2Ljk3LDQyMi43MkMyOTQwLjMsNDIyLjcyIDI4MjEuMjMsMzg3LjM5NiAyODIxLjIzLDM0My44ODZDMjgyMS4yMywzMDAuMzc2IDI5NDAuMywyNjUuMDUxIDMwODYuOTcsMjY1LjA1MVoiIHN0eWxlPSJmaWxsOnJnYigzNSwzMSwzMik7Ii8+CiAgICAgICAgPC9nPgogICAgPC9nPgo8L3N2Zz4K" alt="HopE Lab">
+  <span class="zh-only">👨‍👩‍👧‍👦 家庭健康自查手册 v0.5.3 · 仅供参考，不替代医生诊断</span>
+  <span class="en-only" style="display:none">👨‍👩‍👧‍👦 Family Health Guide · For reference only — not a substitute for professional medical advice</span>
+  <div class="credit">Made by HopE & 小爪 · 建议反馈 / Feedback: <a href="mailto:zerolightninghope@gmail.com" style="color:var(--text-light)">zerolightninghope@gmail.com</a></div>
+</div>
+
+<script>
+  // ── Language Toggle ──
+  function setLang(lang) {
+    document.body.setAttribute('lang', lang);
+    document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    // Show/hide bilingual elements
+    document.querySelectorAll('.zh-only').forEach(function(el) {
+      el.style.display = lang === 'zh' ? '' : 'none';
+    });
+    document.querySelectorAll('.en-only').forEach(function(el) {
+      el.style.display = lang === 'en' ? '' : 'none';
+    });
+    localStorage.setItem('health-lang', lang);
+  }
+  // Restore language preference
+  var savedLang = localStorage.getItem('health-lang') || 'zh';
+  setLang(savedLang);
+
+  // ── Section Navigation ──
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── Scroll to Top Button ──
+  window.addEventListener('scroll', function() {
+    var btn = document.getElementById('scrollTop');
+    if (window.scrollY > 400) { btn.classList.add('show'); }
+    else { btn.classList.remove('show'); }
+  });
+
+  // ── Test Card State ──
+  var checks = JSON.parse(localStorage.getItem('health-checks') || '{"cardio-check":null,"fat-check":null,"flex-check":null,"squat-check":null,"pushup-check":null}');
+  var openCard = null; // 当前展开的卡片 id
+
+  function toggleTest(id) {
+    var body = document.getElementById('body-' + id);
+    var header = body.previousElementSibling;
+    var isOpen = body.classList.contains('open');
+
+    // 关闭上一个展开的卡片
+    if (openCard && openCard !== id) {
+      document.getElementById('body-' + openCard).classList.remove('open');
+      document.getElementById('body-' + openCard).previousElementSibling.classList.remove('open');
+    }
+
+    if (isOpen) {
+      body.classList.remove('open');
+      header.classList.remove('open');
+      openCard = null;
+    } else {
+      body.classList.add('open');
+      header.classList.add('open');
+      openCard = id;
+    }
+  }
+
+  function renderChecks() {
+    // 按钮状态
+    Object.keys(checks).forEach(function(key) {
+      var cardId = key.replace('-check', '');
+      var btns = document.querySelectorAll('[onclick*="'+key+'"]');
+      btns.forEach(function(btn) {
+        btn.classList.remove('pass','fail');
+        if (checks[key] === 'pass' && btn.textContent.includes('✅')) btn.classList.add('pass');
+        if (checks[key] === 'fail' && btn.textContent.includes('❌')) btn.classList.add('fail');
+      });
+      // 更新卡片边框 + 状态标签
+      var card = document.getElementById('test-' + cardId);
+      var status = document.getElementById('status-' + cardId);
+      if (card && status) {
+        card.classList.remove('done','fail');
+        status.classList.remove('pass','fail','pending');
+        status.textContent = '';
+        if (checks[key] === 'pass') {
+          card.classList.add('done');
+          status.classList.add('pass');
+          status.textContent = '✅ 达标';
+        } else if (checks[key] === 'fail') {
+          card.classList.add('fail');
+          status.classList.add('fail');
+          status.textContent = '❌ 不达标';
+        } else {
+          status.classList.add('pending');
+          status.textContent = '待测';
+        }
+      }
+    });
+
+    // 进度条
+    var done = Object.values(checks).filter(v => v !== null).length;
+    var pct = Math.round((done / 5) * 100);
+    document.getElementById('progress-text').innerHTML = '<span class="zh-only">'+done+' / 5 项</span><span class="en-only" style="display:none">'+done+' / 5</span>';
+    document.getElementById('progress-fill').style.width = pct + '%';
+var tips=['<span class="zh-only">先把自检做完 👇</span><span class="en-only" style="display:none">Start the self-check 👇</span>', '<span class="zh-only">再接再厉 💪</span><span class="en-only" style="display:none">Keep going 💪</span>', '<span class="zh-only">快完成了！</span><span class="en-only" style="display:none">Almost there!</span>', '<span class="zh-only">差一点就全做完了 😄</span><span class="en-only" style="display:none">Just one more to go 😄</span>', '<span class="zh-only">🎉 全都完成了！</span><span class="en-only" style="display:none">🎉 All done!</span>'];
+document.getElementById('progress-tip').innerHTML = tips[done] || '<span class="zh-only">🎉 全都完成了！</span><span class="en-only" style="display:none">🎉 All done!</span>';
+
+    // 路线图
+    if (done > 0) {
+      var adviceCard = document.getElementById('advice-card');
+      var adviceList = document.getElementById('advice-list');
+      adviceCard.style.display = 'block';
+      var items = [];
+      if (checks['cardio-check'] === 'fail') items.push({icon:'❤️', text:'心肺功能不达标，优先从隔天快走开始练心肺', tag:'fail'});
+      else if (checks['cardio-check'] === 'pass') items.push({icon:'❤️', text:'心肺功能良好，继续保持', tag:'pass'});
+      if (checks['fat-check'] === 'fail') items.push({icon:'⚖️', text:'体脂率偏高，先调整饮食，配合低强度运动', tag:'fail'});
+      if (checks['flex-check'] === 'fail') items.push({icon:'🤸', text:'柔韧度需要改善，每次运动后加10分钟静态拉伸', tag:'fail'});
+      if (checks['squat-check'] === 'fail') items.push({icon:'🦵', text:'肌肉耐力待提升，日常走路刻意加大步幅和摆臂', tag:'fail'});
+      if (checks['pushup-check'] === 'fail') items.push({icon:'💪', text:'肌肉力量待提升，先提升心肺功能，再慢慢加力量训练', tag:'fail'});
+      if (items.length === 0) items.push({icon:'🎉', text:'所有项目都已达标！继续保持目前的训练计划', tag:'pass'});
+      adviceList.innerHTML = items.map(function(item) {
+        return '<div class="advice-item">' +
+          '<span class="item-icon">'+item.icon+'</span>' +
+          '<span class="item-text">'+item.text+'</span>' +
+          '<span class="item-tag '+item.tag+'">'+(item.tag==='fail'?'需改善':'已达标')+'</span>' +
+        '</div>';
+      }).join('');
+    }
+  }
+
+  function toggleCheck(btn, key) {
+    var isPass = btn.textContent.includes('✅');
+    checks[key] = isPass ? 'pass' : 'fail';
+    localStorage.setItem('health-checks', JSON.stringify(checks));
+    renderChecks();
+  }
+
+  renderChecks();
+
+  // ── Heart Rate Calculator ──
+  function calcHeartRate() {
+    var age = parseFloat(document.getElementById('calc-age').value);
+    var restHR = parseFloat(document.getElementById('calc-rest-hr').value);
+    var intensity = parseFloat(document.getElementById('calc-intensity').value) / 100;
+    if (!age || !restHR || !intensity) {
+      alert('请填写年龄、静息心率和运动强度'); return;
+    }
+    var targetHR = Math.round((220 - age - restHR) * intensity + restHR);
+    var tanakaMax = Math.round(208 - 0.7 * age);
+    var tanakaTarget = Math.round(tanakaMax * intensity);
+    var intensityLabel = intensity < 0.55 ? '减脂区间（偏低强度）' : intensity < 0.70 ? '心肺训练区间' : '高强度（请谨慎）';
+    document.getElementById('hr-output').textContent = targetHR;
+    document.getElementById('hr-desc').innerHTML =
+      '卡氏公式结果。<br>Tanaka更准确版：' + tanakaTarget + '次/分（最大心率' + tanakaMax + '）<br>当前强度：' + intensityLabel +
+      '<br>感受："稍微喘气但能说话" ≈ 合适强度';
+    document.getElementById('hr-result').style.display = 'block';
+  }
+
+  // ── Diet Calculator ──
+  function calcDiet() {
+    var weight = parseFloat(document.getElementById('calc-weight').value);
+    var gender = document.getElementById('calc-gender').value;
+    if (!weight) { alert('请输入体重'); return; }
+    var carb = Math.round(weight * (gender === 'male' ? 2 : 1.8));
+    var protein = Math.round(weight * 1.4);
+    var fat = Math.round(weight * 1);
+    document.getElementById('carb-out').textContent = carb + ' g';
+    document.getElementById('protein-out').textContent = protein + ' g';
+    document.getElementById('fat-out').textContent = fat + ' g';
+    document.getElementById('diet-desc').textContent = '基于体重' + weight + 'kg（' + (gender === 'male' ? '男性' : '女性') + '）计算';
+    var genderLabel = gender === 'male' ? '男性' : '女性';
+    var genderLabelEn = gender === 'male' ? 'Male' : 'Female';
+    var carbRate = gender === 'male' ? '2' : '1.8';
+    document.getElementById('diet-formula').innerHTML =
+      '<span class="zh-only">📐 公式验算（' + genderLabel + '，' + weight + 'kg）<br>碳水 = ' + weight + ' × ' + carbRate + 'g = ' + carb + 'g<br>蛋白质 = ' + weight + ' × 1.4g = ' + protein + 'g<br>脂肪 = ' + weight + ' × 1g = ' + fat + 'g</span><span class="en-only" style="display:none">📐 Verification (' + genderLabelEn + '，' + weight + 'kg)<br>Carbs = ' + weight + ' × ' + carbRate + ' = ' + carb + 'g<br>Protein = ' + weight + ' × 1.4 = ' + protein + 'g<br>Fat = ' + weight + ' × 1 = ' + fat + 'g</span>';
+    document.getElementById('diet-formula').style.display = 'block';
+    document.getElementById('diet-result').style.display = 'block';
+  }
+
+  // ── FAQ Accordion ──
+  function toggleFaq(btn) {
+    var faqA = btn.nextElementSibling;
+    var isOpen = faqA.classList.contains('open');
+    document.querySelectorAll('.faq-a').forEach(a => a.classList.remove('open'));
+    document.querySelectorAll('.faq-q').forEach(q => q.classList.remove('open'));
+    if (!isOpen) { faqA.classList.add('open'); btn.classList.add('open'); }
+  }
+</script>
+</body>
+</html>
