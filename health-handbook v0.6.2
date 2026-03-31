@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>👨‍👩‍👧‍👦 家庭健康自查手册 v0.6.2</title>
+<style>
+:root{--bg:#faf9f6;--card:#fff;--primary:#2d7a5e;--primary-light:#e8f5f0;--primary-dark:#1e5a42;--accent:#e8a84a;--accent-light:#fef6e8;--warn:#e74c3c;--warn-light:#fdecea;--text:#2c2c2c;--text-light:#666;--border:#e0ddd8;--radius:16px;--shadow:0 2px 12px rgba(0,0,0,0.08)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7;padding-bottom:80px}
+.header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:28px 20px 36px;text-align:center;position:relative;overflow:hidden}
+.header::before{content:"";position:absolute;bottom:-30px;left:-20px;width:200px;height:200px;background:rgba(255,255,255,0.06);border-radius:50%}
+.header::after{content:"";position:absolute;top:-40px;right:-30px;width:150px;height:150px;background:rgba(255,255,255,0.04);border-radius:50%}
+.header h1{font-size:21px;font-weight:700;margin-bottom:6px;position:relative}
+.header p{font-size:14px;opacity:0.85;position:relative}
+.header .badge{display:inline-block;background:rgba(255,255,255,0.18);border-radius:20px;padding:4px 14px;font-size:12px;margin-top:10px;position:relative}
+.tier-banner{display:flex;gap:8px;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.tier-btn{flex:1;border:2px solid transparent;background:var(--bg);color:var(--text-light);padding:10px 6px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;text-align:center}
+.tier-btn .ti{font-size:18px;display:block;margin-bottom:3px}
+.tier-btn .ts{font-size:10px;opacity:0.8;display:block}
+.tier-btn.active{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
+.tier-btn:active{transform:scale(0.96)}
+.tab-bar{display:flex;gap:4px;padding:8px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:var(--card);position:sticky;top:73px;z-index:99;border-bottom:1px solid var(--border)}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;border:none;background:var(--bg);color:var(--text-light);padding:6px 12px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.tab-btn.active{background:var(--primary);color:#fff}
+.tab-btn:active{transform:scale(0.96)}
+.section{display:none;padding:18px 16px;max-width:680px;margin:0 auto;animation:fadeIn 0.25s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.sec-header{padding:4px 0 14px}
+.sec-header .st{font-size:20px;font-weight:700;color:var(--primary)}
+.sec-header .sd{font-size:13px;color:var(--text-light);margin-top:4px}
+.tt{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:10px}
+.tt.d{background:#e8f4ff;color:#1a73e8}
+.tt.m{background:var(--accent-light);color:#a07020}
+.tt.y{background:#f3e8ff;color:#7c3aed}
+.test-card{background:var(--card);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden;border:2px solid transparent;transition:border-color 0.2s}
+.test-card.done{border-color:var(--primary)}
+.test-card.fail{border-color:#f0b0a0}
+.test-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none;transition:background 0.15s}
+.test-header:active{background:var(--primary-light)}
+.test-header-left{display:flex;align-items:center;gap:12px}
+.test-icon{font-size:26px;flex-shrink:0}
+.test-title{font-size:15px;font-weight:700;color:var(--text)}
+.test-sub{font-size:12px;color:var(--text-light);margin-top:2px}
+.test-header-right{display:flex;align-items:center;gap:8px}
+.test-status{font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px}
+.test-status.pass{background:var(--primary-light);color:var(--primary)}
+.test-status.fail{background:var(--warn-light);color:var(--warn)}
+.test-status.pending{background:var(--bg);color:var(--text-light)}
+.test-arrow{font-size:12px;color:var(--text-light);transition:transform 0.2s}
+.test-header.open .test-arrow{transform:rotate(180deg)}
+.test-body{max-height:0;overflow:hidden;transition:max-height 0.35s ease;padding:0 16px}
+.test-body.open{max-height:900px;padding-bottom:16px}
+.ml{font-size:12px;font-weight:700;color:var(--primary-dark);margin-bottom:8px;margin-top:10px}
+.mb{background:var(--bg);border-radius:10px;padding:12px;margin-bottom:4px}
+.mb p{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px}
+.mb p:last-child{margin-bottom:0}
+.ct{width:100%;border-collapse:collapse;font-size:12px}
+.ct th{background:var(--primary-light);color:var(--primary-dark);padding:8px 10px;text-align:left;font-weight:600}
+.ct td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;font-size:13px}
+.ct tr:last-child td{border-bottom:none}
+.ct td:first-child{font-weight:600}
+.cb{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.cbtn{border:2px solid var(--border);background:#fff;border-radius:10px;padding:6px 12px;font-size:12px;cursor:pointer;transition:all 0.2s;color:var(--text-light)}
+.cbtn.pass{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
+.cbtn.fail{border-color:var(--warn);background:var(--warn-light);color:var(--warn)}
+.cbtn:active{transform:scale(0.96)}
+.auto-result{display:none;margin-top:14px;border-radius:12px;padding:12px 16px;font-size:13px;font-weight:600;align-items:center;gap:10px}
+.auto-result.show{display:flex}
+.auto-result.pass{background:var(--primary-light);border:2px solid var(--primary);color:var(--primary)}
+.auto-result.fail{background:var(--warn-light);border:2px solid var(--warn);color:var(--warn)}
+.auto-result .ar-icon{font-size:20px;flex-shrink:0}
+.auto-result .ar-text{flex:1;line-height:1.5}
+.auto-result .ar-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0}
+.auto-result.pass .ar-badge{background:var(--primary);color:#fff}
+.auto-result.fail .ar-badge{background:var(--warn);color:#fff}
+.sg{display:grid;gap:6px;margin-top:10px}
+.so{border:2px solid var(--border);background:#fff;border-radius:10px;padding:8px 4px;font-size:11px;cursor:pointer;text-align:center;transition:all 0.2s;color:var(--text-light);line-height:1.4}
+.so.sel{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
+.so.warn{border-color:var(--warn);background:var(--warn-light);color:var(--warn)}
+.so .ov{font-size:18px;font-weight:800;display:block}
+.so .ol{font-size:10px;font-weight:500}
+.so:active{transform:scale(0.95)}
+.bc{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin:10px 0}
+.bi{text-align:center;cursor:pointer;padding:6px 2px;border-radius:8px;border:2px solid transparent;transition:all 0.2s}
+.bi.sel{border-color:var(--primary);background:var(--primary-light)}
+.bi.sel.warn{border-color:var(--warn);background:var(--warn-light)}
+.bi .bt{font-size:20px;display:block}
+.bi .bn{font-size:10px;color:var(--text-light);display:block;margin-top:2px}
+.bl{font-size:11px;color:var(--text-light);text-align:center;margin-top:6px}
+.vi{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.vi:last-child{border-bottom:none}
+.vic{font-size:28px;flex-shrink:0}
+.vii{flex:1}
+.vin{font-size:14px;font-weight:700;color:var(--text)}
+.vid{font-size:12px;color:var(--text-light);margin-top:2px}
+.vinput{width:60px;border:2px solid var(--border);border-radius:8px;padding:6px 8px;font-size:14px;text-align:center;outline:none;background:#fff;transition:border-color 0.2s}
+.vinput:focus{border-color:var(--primary)}
+.vunit{font-size:12px;color:var(--text-light)}
+.pw{background:var(--primary-light);border-radius:12px;padding:12px 16px;margin-bottom:4px}
+.plabel{display:flex;justify-content:space-between;font-size:13px;color:var(--primary-dark);font-weight:600;margin-bottom:8px}
+.pbar{height:10px;background:rgba(45,122,94,0.2);border-radius:10px;overflow:hidden}
+.pfill{height:100%;background:var(--primary);border-radius:10px;transition:width 0.5s ease;width:0%}
+.ptip{font-size:12px;color:var(--text-light);margin-top:8px}
+.ai{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.ai:last-child{border-bottom:none}
+.ai .ic{font-size:18px;flex-shrink:0;margin-top:1px}
+.ai .it{flex:1;line-height:1.5}
+.ai .itag{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.ai .itag.fail{background:var(--warn-light);color:var(--warn)}
+.ai .itag.pass{background:var(--primary-light);color:var(--primary)}
+.card{background:var(--card);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card-title{font-size:16px;font-weight:700;color:var(--primary);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.form-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.form-row label{font-size:14px;color:var(--text);min-width:80px;font-weight:500}
+.finput{flex:1;border:2px solid var(--border);border-radius:10px;padding:10px 14px;font-size:15px;outline:none;transition:border-color 0.2s;background:var(--bg);color:var(--text);max-width:130px}
+.finput:focus{border-color:var(--primary)}
+.form-row span{font-size:13px;color:var(--text-light)}
+.btn{width:100%;background:var(--primary);color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;transition:all 0.2s}
+.btn:active{transform:scale(0.98);background:var(--primary-dark)}
+.rb{background:var(--primary-light);border:2px solid var(--primary);border-radius:12px;padding:16px;margin-top:14px;text-align:center}
+.rb .bn{font-size:40px;font-weight:800;color:var(--primary);line-height:1.1}
+.rb .bl{font-size:13px;color:var(--primary-dark);margin-top:4px}
+.rb .bs{font-size:12px;color:var(--text-light);margin-top:8px;line-height:1.6}
+.rt{width:100%;margin-top:14px;border-collapse:collapse}
+.rt td{padding:9px 12px;font-size:14px;border-bottom:1px solid var(--border)}
+.rt td:first-child{font-weight:600}
+.rt td:last-child{text-align:right;color:var(--primary);font-weight:700}
+.alert{background:#fff8e6;border:1.5px solid #f0c060;border-radius:12px;padding:12px 14px;font-size:13px;display:flex;gap:10px;align-items:flex-start;margin-top:12px}
+.alert .ae{font-size:18px;flex-shrink:0}
+.alert p{color:var(--text);line-height:1.6}
+.alert.warnA{background:var(--warn-light);border-color:#e0a0a0}
+.fb{background:var(--accent-light);border-left:4px solid var(--accent);border-radius:0 12px 12px 0;padding:12px 16px;margin:12px 0;font-size:13px;line-height:1.7}
+.bl2{list-style:none;padding:0}
+.bl2 li{padding:8px 0 8px 20px;font-size:14px;border-bottom:1px solid var(--border);position:relative;line-height:1.6}
+.bl2 li:last-child{border-bottom:none}
+.bl2 .dot{position:absolute;left:0;top:8px;color:var(--primary);font-weight:700}
+.steps{counter-reset:step}
+.step{display:flex;gap:12px;margin-bottom:14px}
+.step::before{counter-increment:step;content:counter(step);width:26px;height:26px;background:var(--primary);color:#fff;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-content{flex:1}
+.step-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px}
+.step-desc{font-size:13px;color:var(--text-light);line-height:1.6}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pc{background:var(--card);border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow)}
+.pc .pnum{width:32px;height:32px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;margin:0 auto 8px}
+.pc.top .pnum{background:var(--accent)}
+.pc .ptitle{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.pc .pdesc{font-size:11px;color:var(--text-light)}
+.sp{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
+.sp:last-child{border-bottom:none}
+.sp .nb{width:22px;height:22px;background:var(--primary);color:#fff;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.sp .sc{flex:1;font-size:13px;color:var(--text-light);line-height:1.6}
+.sp .sc strong{color:var(--text)}
+.faq-item{background:var(--card);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden}
+.faq-q{width:100%;background:none;border:none;padding:14px 18px;text-align:left;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.15s}
+.faq-q:hover{background:var(--primary-light)}
+.faq-q .arr{font-size:14px;transition:transform 0.2s;color:var(--text-light)}
+.faq-q.open .arr{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height 0.3s ease}
+.faq-a.open{max-height:400px}
+.faq-ac{padding:0 18px 14px;font-size:13px;color:var(--text-light);line-height:1.7}
+.faq-ac p{margin-bottom:8px}
+.faq-ac p:last-child{margin-bottom:0}
+.rc{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:10px;box-shadow:var(--shadow);border-left:4px solid var(--primary)}
+.rc.high{border-left-color:var(--warn)}
+.rc .rtitle{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.rc .rdesc{font-size:12px;color:var(--text-light);line-height:1.6}
+.rc .rtags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.rtag{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:var(--primary-light);color:var(--primary)}
+.rc.high .rtag{background:var(--warn-light);color:var(--warn)}
+.info-box{background:#e8f4ff;border-radius:10px;padding:12px 14px;margin:8px 0;font-size:13px;color:#1a4fa0;line-height:1.6}
+#scrollTop{position:fixed;bottom:20px;right:20px;width:44px;height:44px;background:var(--primary);color:#fff;border:none;border-radius:50%;font-size:20px;cursor:pointer;box-shadow:0 4px 16px rgba(45,122,94,0.4);display:none;z-index:200;align-items:center;justify-content:center}
+#scrollTop.show{display:flex}
+.footer{text-align:center;padding:20px 16px;font-size:12px;color:var(--text-light);max-width:680px;margin:0 auto}
+.footer .cr{font-size:11px;color:var(--text-light);margin-top:6px;opacity:0.7}
+#splash{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;z-index:9999;animation:sfOut 0.8s ease 2s forwards}
+@keyframes sfOut{from{opacity:1}to{opacity:0;visibility:hidden}}
+.si{text-align:center;color:#fff}
+.si .stitle{font-size:52px;margin-bottom:16px}
+.si .stext{font-size:16px;line-height:1.6;opacity:0.9;font-weight:500}
+</style>
+</head>
+<body>
+<div id="splash"><div class="si"><div class="stitle">👨‍👩‍👧‍👦</div><div class="stext">Made by HopE<br>和他的 AI 助手小爪</div></div></div>
+<div class="header" id="top">
+  <h1>👨‍👩‍👧‍👦 家庭健康自查手册 v0.6.2</h1>
+  <p>祝你早安、午安、晚安</p>
+  <div class="badge">🧭 科学自检 · 精准训练 · 全家适用</div>
+</div>
+<div class="tier-banner" id="tierBanner">
+  <button class="tier-btn active" id="tier-daily-btn" onclick="setTier('daily')">
+    <span class="ti">🌙</span><span class="tier-name">每日自查</span><span class="ts">睡眠·排泄·情绪</span>
+  </button>
+  <button class="tier-btn" id="tier-monthly-btn" onclick="setTier('monthly')">
+    <span class="ti">📅</span><span class="tier-name">月度自查</span><span class="ts">体重·肌肉·心肺</span>
+  </button>
+  <button class="tier-btn" id="tier-yearly-btn" onclick="setTier('yearly')">
+    <span class="ti">🩺</span><span class="tier-name">年度提醒</span><span class="ts">血液指标·体检</span>
+  </button>
+</div>
+<div class="tab-bar" id="tabBar"></div>
+<div class="section active" id="sec-daily-overview">
+  <div class="sec-header">
+    <div class="st">🌙 每日健康自检</div>
+    <div class="sd">每天花 3 分钟，完成当天的基础健康记录</div>
+  </div>
+  <div class="pw">
+    <div class="plabel"><span>今日完成度</span><span id="d-p-text">0 / 4</span></div>
+    <div class="pbar"><div class="pfill" id="d-p-fill"></div></div>
+    <div class="ptip" id="d-p-tip">开始今天的记录吧 👇</div>
+  </div>
+  <div class="card" style="background:#f0f7f4;border-left:4px solid var(--primary)">
+    <p style="font-size:13px;color:var(--text-light);line-height:1.7">先点击每个模块查看测量方法，测完后点选结果。有手环用设备测，没手环用<strong>零成本方法</strong>，同样准确！</p>
+  </div>
+  <div class="card" id="d-roadmap" style="display:none">
+    <div class="card-title">🗺️ 今日健康小结</div>
+    <div id="d-advice"></div>
+  </div>
+</div>
+<div class="section" id="sec-daily-sleep">
+  <div class="sec-header">
+    <div class="st">😴 睡眠质量</div>
+    <div class="sd">入睡时长 · 晨起精力 · 白天嗜睡</div>
+  </div>
+  <div class="test-card" id="test-sleep">
+    <div class="test-header" onclick="toggleTest('sleep')">
+      <div class="test-header-left"><span class="test-icon">😴</span>
+        <div><div class="test-title">睡眠自检</div><div class="test-sub">入睡 · 晨起精力 · 嗜睡</div></div>
+      </div>
+      <div class="test-header-right">
+        <span class="test-status" id="status-sleep"></span>
+        <span class="test-arrow">▼</span>
+      </div>
+    </div>
+    <div class="test-body" id="body-sleep">
+      <div class="ml">入睡时长（关灯到睡着）</div>
+      <div class="mb">
+        <p>上床后多久能睡着？</p>
+        <div class="sg" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="so" onclick="selectScore('sleep-time',this,3,'sleep')"><span class="ov">&lt;15'</span><span class="ol">很快</span></div>
+          <div class="so" onclick="selectScore('sleep-time',this,2,'sleep')"><span class="ov">15-30'</span><span class="ol">正常</span></div>
+          <div class="so" onclick="selectScore('sleep-time',this,1,'sleep')"><span class="ov">&gt;30'</span><span class="ol">偏慢</span></div>
+        </div>
+      </div>
+      <div class="ml">晨起精力感（1-5分）</div>
+      <div class="mb">
+        <p>早上醒来，感觉恢复得</p>
+        <div class="sg" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr">
+          <div class="so" onclick="selectScore('sleep-energy',this,1,'sleep')"><span class="ov">1</span><span class="ol">很累</span></div>
+          <div class="so" onclick="selectScore('sleep-energy',this,2,'sleep')"><span class="ov">2</span><span class="ol">有点累</span></div>
+          <div class="so" onclick="selectScore('sleep-energy',this,3,'sleep')"><span class="ov">3</span><span class="ol">一般</span></div>
+          <div class="so" onclick="selectScore('sleep-energy',this,4,'sleep')"><span class="ov">4</span><span class="ol">较好</span></div>
+          <div class="so" onclick="selectScore('sleep-energy',this,5,'sleep')"><span class="ov">5</span><span class="ol">神清气爽</span></div>
+        </div>
+      </div>
+      <div class="ml">白天嗜睡程度</div>
+      <div class="mb">
+        <p>白天有没有明显困意？（坐着看书/看电视时）</p>
+        <div class="sg" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="so" onclick="selectScore('sleep-drowse',this,0,'sleep')"><span class="ov">从不</span><span class="ol">无困意</span></div>
+          <div class="so" onclick="selectScore('sleep-drowse',this,1,'sleep')"><span class="ov">偶尔</span><span class="ol">轻微</span></div>
+          <div class="so warn" onclick="selectScore('sleep-drowse',this,2,'sleep')"><span class="ov">经常</span><span class="ol">明显</span></div>
+        </div>
+      </div>
+      <div class="info-box">
+        <p>💡 <strong>打鼾提示：</strong>如果同住人反映你经常打鼾或呼吸暂停，建议就医做睡眠呼吸监测</p>
+      </div>
+      <div class="auto-result" id="result-sleep">
+        <span class="ar-icon"></span>
+        <span class="ar-text"></span>
+        <span class="ar-badge"></span>
+      </div>
+    </div>
+  </div>
+  <div class="alert">
+    <span class="ae">💡</span>
+    <p><strong>睡眠贴士：</strong>成年人建议每天 7-9 小时；睡前 1 小时少用手机；固定作息时间比睡够时长更重要</p>
+  </div>
+</div>
+<div class="section" id="sec-daily-bowel">
+  <div class="sec-header">
+    <div class="st">🚽 排泄质量</div>
+    <div class="sd">大便形态 · 颜色预警 · 小便状态</div>
+  </div>
+  <div class="test-card" id="test-bowel">
+    <div class="test-header" onclick="toggleTest('bowel')">
+      <div class="test-header-left"><span class="test-icon">🚽</span>
+        <div><div class="test-title">排泄自检</div><div class="test-sub">大便形态 · 颜色</div></div>
+      </div>
+      <div class="test-header-right">
+        <span class="test-status" id="status-bowel"></span>
+        <span class="test-arrow">▼</span>
+      </div>
+    </div>
+    <div class="test-body" id="body-bowel">
+      <div class="ml">大便形态 — 布里斯托分类法</div>
+      <div class="mb">
+        <p>选择最接近今天大便形态的选项：</p>
+        <div class="bc" id="bristolChart">
+          <div class="bi" onclick="selectBristol(1,this)"><span class="bt">🥜</span><span class="bn">Type 1</span></div>
+          <div class="bi" onclick="selectBristol(2,this)"><span class="bt">🍇</span><span class="bn">Type 2</span></div>
+          <div class="bi" onclick="selectBristol(3,this)"><span class="bt">🍌</span><span class="bn">Type 3</span></div>
+          <div class="bi" onclick="selectBristol(4,this)"><span class="bt">🐍</span><span class="bn">Type 4</span></div>
+          <div class="bi" onclick="selectBristol(5,this)"><span class="bt">🥣</span><span class="bn">Type 5</span></div>
+          <div class="bi" onclick="selectBristol(6,this)"><span class="bt">💧</span><span class="bn">Type 6</span></div>
+          <div class="bi warn" onclick="selectBristol(7,this)"><span class="bt">💦</span><span class="bn">Type 7</span></div>
+        </div>
+        <div class="bl">← 便秘 &nbsp;&nbsp; 正常 &nbsp;&nbsp; 腹泻 →</div>
+        <div class="info-box" style="margin-top:8px">
+          <p><strong>正常范围：Type 3-4</strong>（香肠形，表面光滑或略有裂缝）</p>
+          <p>Type 1-2：便秘 | Type 5-7：腹泻或肠道刺激</p>
+        </div>
+      </div>
+      <div class="ml">大便颜色预警</div>
+      <div class="mb">
+        <p>今天的大便颜色有异常吗？</p>
+        <div class="cb" style="margin-top:0;gap:4px">
+          <button class="cbtn" onclick="selectBowelColor('normal',this)">✅ 正常</button>
+          <button class="cbtn warn" onclick="selectBowelColor('black',this)">🟤 黑色</button>
+          <button class="cbtn warn" onclick="selectBowelColor('red',this)">🔴 血便</button>
+          <button class="cbtn warn" onclick="selectBowelColor('pale',this)">⚪ 灰白</button>
+          <button class="cbtn" onclick="selectBowelColor('yellow',this)">💛 黄色</button>
+        </div>
+        <div id="bowel-color-msg" style="font-size:12px;color:var(--text-light);margin-top:6px"></div>
+      </div>
+      <div class="ml">小便自检</div>
+      <div class="mb">
+        <p>今天的小便颜色？</p>
+        <div class="cb" style="margin-top:0">
+          <button class="cbtn" onclick="selectUrine('light',this)">🟡 淡黄（正常）</button>
+          <button class="cbtn warn" onclick="selectUrine('dark',this)">🟠 深黄（偏少）</button>
+          <button class="cbtn warn" onclick="selectUrine('red',this)">🔴 红色（警惕）</button>
+        </div>
+      </div>
+      <div class="auto-result" id="result-bowel">
+        <span class="ar-icon"></span>
+        <span class="ar-text"></span>
+        <span class="ar-badge"></span>
+      </div>
+    </div>
+  </div>
+  <div class="alert">
+    <span class="ae">💡</span>
+    <p><strong>排泄贴士：</strong>每天 1-3 次或 1-3 天一次在正常范围内；多吃膳食纤维、多喝水可改善大便形态；长期便秘或腹泻请咨询医生</p>
+  </div>
+</div>
+<div class="section" id="sec-daily-mood">
+  <div class="sec-header">
+    <div class="st">😊 情绪状态</div>
+    <div class="sd">今日情绪 · 压力水平 · 社交连接</div>
+  </div>
+  <div class="test-card" id="test-mood">
+    <div class="test-header" onclick="toggleTest('mood')">
+      <div class="test-header-left"><span class="test-icon">😊</span>
+        <div><div class="test-title">情绪自检</div><div class="test-sub">情绪 · 压力</div></div>
+      </div>
+      <div class="test-header-right">
+        <span class="test-status" id="status-mood"></span>
+        <span class="test-arrow">▼</span>
+      </div>
+    </div>
+    <div class="test-body" id="body-mood">
+      <div class="ml">今日情绪（1-10分）</div>
+      <div class="mb">
+        <p>你今天整体感觉如何？</p>
+        <div class="sg" style="grid-template-columns:repeat(5,1fr)">
+          <div class="so" onclick="selectScore('mood-score',this,1,'mood')"><span class="ov">1</span><span class="ol">很差</span></div>
+          <div class="so" onclick="selectScore('mood-score',this,2,'mood')"><span class="ov">2</span><span class="ol">较差</span></div>
+          <div class="so" onclick="selectScore('mood-score',this,3,'mood')"><span class="ov">3</span><span class="ol">有点糟</span></div>
+          <div class="so" onclick="selectScore('mood-score',this,4,'mood')"><span class="ov">4</span><span class="ol">不太好</span></div>
+          <div class="so" onclick="selectScore('mood-score',this,5,'mood')"><span class="ov">5</span><span class="ol">一般</span></div>
+          <div class="so" onclick="selectScore('mood-score',this,6,'mood')"><span class="ov">6</span><span class="ol">还行</span></div>
+          <div class="so" onclick="selectScore('mood-score',this,7,'mood')"><span class="ov">7</span><span class="ol">较好</span></div>
+          <div class="so" onclick="selectScore('mood-score',this,8,'mood')"><span class="ov">8</span><span class="ol">良好</span></div>
+          <div class="so" onclick="selectScore('mood-score',this,9,'mood')"><span class="ov">9</span><span class="ol">很好</span></div>
+          <div class="so" onclick="selectScore('mood-score',this,10,'mood')"><span class="ov">10</span><span class="ol">超棒</span></div>
+        </div>
+      </div>
+      <div class="ml">今日压力程度</div>
+      <div class="mb">
+        <p>压力来自工作、生活、人际关系？</p>
+        <div class="sg" style="grid-template-columns:1fr 1fr 1fr 1fr">
+          <div class="so" onclick="selectScore('stress',this,0,'mood')"><span class="ov">😌</span><span class="ol">无压力</span></div>
+          <div class="so" onclick="selectScore('stress',this,1,'mood')"><span class="ov">😐</span><span class="ol">轻微</span></div>
+          <div class="so warn" onclick="selectScore('stress',this,2,'mood')"><span class="ov">😰</span><span class="ol">较大</span></div>
+          <div class="so warn" onclick="selectScore('stress',this,3,'mood')"><span class="ov">😫</span><span class="ol">很大</span></div>
+        </div>
+      </div>
+      <div class="ml">今日社交（有没有跟人说说话？）</div>
+      <div class="mb">
+        <p>今天和家人/朋友/同事有交流吗？</p>
+        <div class="sg" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="so" onclick="selectScore('social',this,0,'mood')"><span class="ov">🧍</span><span class="ol">几乎没有</span></div>
+          <div class="so" onclick="selectScore('social',this,1,'mood')"><span class="ov">👥</span><span class="ol">有简单交流</span></div>
+          <div class="so" onclick="selectScore('social',this,2,'mood')"><span class="ov">🤝</span><span class="ol">深度交流</span></div>
+        </div>
+      </div>
+      <div class="auto-result" id="result-mood">
+        <span class="ar-icon"></span>
+        <span class="ar-text"></span>
+        <span class="ar-badge"></span>
+      </div>
+    </div>
+  </div>
+  <div class="alert">
+    <span class="ae">💡</span>
+    <p><strong>情绪贴士：</strong>每天与人交流可降低孤独感；深呼吸（4-7-8呼吸法）能快速缓解焦虑；情绪持续低落超过2周建议寻求专业帮助</p>
+  </div>
+</div>
+<div class="section" id="sec-daily-vitals">
+  <div class="sec-header">
+    <div class="st">🩺 基础体征</div>
+    <div class="sd">血压 · 心率 · 体温 · 血氧</div>
+  </div>
+  <div class="test-card" id="test-vitals">
+    <div class="test-header" onclick="toggleTest('vitals')">
+      <div class="test-header-left"><span class="test-icon">🩺</span>
+        <div><div class="test-title">基础体征自检</div><div class="test-sub">血压 · 心率 · 体温</div></div>
+      </div>
+      <div class="test-header-right">
+        <span class="test-status" id="status-vitals"></span>
+        <span class="test-arrow">▼</span>
+      </div>
+    </div>
+    <div class="test-body" id="body-vitals">
+      <div class="vi">
+        <span class="vic">🩸</span>
+        <div class="vii">
+          <div class="vin">血压（mmHg）</div>
+          <div class="vid">收缩压 / 舒张压</div>
+        </div>
+        <input class="vinput" id="bp-sys" placeholder="120" type="number">
+        <span class="vunit">/</span>
+        <input class="vinput" id="bp-dia" placeholder="80" type="number">
+      </div>
+      <div class="vi">
+        <span class="vic">❤️</span>
+        <div class="vii">
+          <div class="vin">心率（bpm）</div>
+          <div class="vid">安静状态下测量</div>
+        </div>
+        <input class="vinput" id="hr" placeholder="72" type="number">
+        <span class="vunit">bpm</span>
+      </div>
+      <div class="vi">
+        <span class="vic">🌡️</span>
+        <div class="vii">
+          <div class="vin">体温（℃）</div>
+          <div class="vid">腋下 +0.5 或口腔测量</div>
+        </div>
+        <input class="vinput" id="temp" placeholder="36.5" type="number" step="0.1">
+        <span class="vunit">℃</span>
+      </div>
+      <div class="vi">
+        <span class="vic">🫁</span>
+        <div class="vii">
+          <div class="vin">血氧饱和度（%）</div>
+          <div class="vid">指尖血氧仪（非必须）</div>
+        </div>
+        <input class="vinput" id="spo2" placeholder="98" type="number">
+        <span class="vunit">%</span>
+      </div>
+      <div class="card-title" style="margin-top:16px">📊 参考标准</div>
+      <table class="ct">
+        <tr><th>项目</th><th>正常范围</th><th>说明</th></tr>
+        <tr><td>血压</td><td>&lt;120/80</td><td>收缩压/舒张压</td></tr>
+        <tr><td>心率</td><td>60-100</td><td>安静状态</td></tr>
+        <tr><td>体温</td><td>36.0-37.0</td><td>腋下</td></tr>
+        <tr><td>血氧</td><td>95-100</td><td>指尖测量</td></tr>
+      </table>
+      <div class="info-box">
+        <p>💡 <strong>无设备？</strong>用手腕或颈动脉测脉搏（1分钟数跳了多少下）估算心率；体温可用额头测温枪</p>
+      </div>
+      <button class="btn" onclick="evalVitals()" style="margin-top:12px">📊 分析体征数据</button>
+      <div class="auto-result" id="result-vitals">
+        <span class="ar-icon"></span>
+        <span class="ar-text"></span>
+        <span class="ar-badge"></span>
+      </div>
+    </div>
+  </div>
+  <div class="alert">
+    <span class="ae">💡</span>
+    <p><strong>体征贴士：</strong>血压建议早晨起床后、服药前测量；剧烈运动后心率偏高属正常；体温 >37.5℃需关注，>38.5℃建议就医</p>
+  </div>
+</div>
+<div class="section" id="sec-monthly-overview">
+  <div class="sec-header">
+    <div class="st">📅 月度健康自查</div>
+    <div class="sd">每月一次，全面评估身体素质</div>
+  </div>
+  <div class="pw">
+    <div class="plabel"><span>本月完成度</span><span id="m-p-text">0 / 4</span></div>
+    <div class="pbar"><div class="pfill" id="m-p-fill"></div></div>
+    <div class="ptip" id="m-p-tip">开始本月的全面评估吧 👇</div>
+  </div>
+  <div class="pg">
+    <div class="pc">
+      <div class="pnum">1</div>
+      <div class="ptitle">💪 心肺功能</div>
+      <div class="pdesc">爬楼/快走测试</div>
+    </div>
+    <div class="pc">
+      <div class="pnum">2</div>
+      <div class="ptitle">🧘 柔韧性</div>
+      <div class="pdesc">坐位体前屈</div>
+    </div>
+    <div class="pc top">
+      <div class="pnum">3</div>
+      <div class="ptitle">⚖️ 体重</div>
+      <div class="pdesc">BMI 计算</div>
+    </div>
+    <div class="pc">
+      <div class="pnum">4</div>
+      <div class="ptitle">💪 肌肉力量</div>
+      <div class="pdesc">握力/俯卧撑</div>
+    </div>
+  </div>
+  <div class="card" id="m-roadmap" style="display:none;margin-top:14px">
+    <div class="card-title">📊 本月健康小结</div>
+    <div id="m-advice"></div>
+  </div>
+</div>
+<div class="section" id="sec-monthly-cardio">
+  <div class="sec-header">
+    <div class="st">❤️ 心肺功能</div>
+    <div class="sd">台阶测试 · 6分钟步行 · 心率恢复</div>
+  </div>
+  <div class="test-card" id="test-cardio">
+    <div class="test-header" onclick="toggleTest('cardio')">
+      <div class="test-header-left"><span class="test-icon">❤️</span>
+        <div><div class="test-title">心肺自检</div><div class="test-sub">台阶测试 · 步行测试</div></div>
+      </div>
+      <div class="test-header-right">
+        <span class="test-status" id="status-cardio"></span>
+        <span class="test-arrow">▼</span>
+      </div>
+    </div>
+    <div class="test-body" id="body-cardio">
+      <div class="ml">台阶测试（零成本版）</div>
+      <div class="mb">
+        <p><strong>测试方法：</strong>找一段台阶（台阶高约20cm），以每秒1-2步的速度上下3分钟，记录完成后1分钟内的心率。</p>
+        <div class="step">
+          <div></div>
+          <div class="step-content">
+            <div class="step-title">准备</div>
+            <div class="step-desc">穿平底鞋，准备计时器和心率检测设备（手表/手环）</div>
+          </div>
+        </div>
+        <div class="step">
+          <div></div>
+          <div class="step-content">
+            <div class="step-title">执行</div>
+            <div class="step-desc">以每秒1-2步的速度上下台阶，持续3分钟，保持节奏</div>
+          </div>
+        </div>
+        <div class="step">
+          <div></div>
+          <div class="step-content">
+            <div class="step-title">测量</div>
+            <div class="step-desc">完成后立即坐下，测量1分钟后的心率恢复情况</div>
+          </div>
+        </div>
+      </div>
+      <div class="ml">6分钟步行测试（简易版）</div>
+      <div class="mb">
+        <p><strong>测试方法：</strong>在平坦地面尽可能走完6分钟，测量总距离（步幅×步数估算）。</p>
+        <div class="sg" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="so" onclick="selectScore('walk-test',this,1,'cardio')"><span class="ov">&lt;300m</span><span class="ol">较弱</span></div>
+          <div class="so" onclick="selectScore('walk-test',this,2,'cardio')"><span class="ov">300-500m</span><span class="ol">中等</span></div>
+          <div class="so" onclick="selectScore('walk-test',this,3,'cardio')"><span class="ov">&gt;500m</span><span class="ol">良好</span></div>
+        </div>
+      </div>
+      <div class="ml">心率恢复测试</div>
+      <div class="mb">
+        <p>运动后心率1分钟内能恢复到多少？</p>
+        <div class="sg" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="so" onclick="selectScore('hr-recovery',this,1,'cardio')"><span class="ov">&lt;20bpm</span><span class="ol">恢复慢</span></div>
+          <div class="so" onclick="selectScore('hr-recovery',this,2,'cardio')"><span class="ov">20-30</span><span class="ol">正常</span></div>
+          <div class="so" onclick="selectScore('hr-recovery',this,3,'cardio')"><span class="ov">&gt;30bpm</span><span class="ol">恢复快</span></div>
+        </div>
+      </div>
+      <div class="info-box">
+        <p>💡 <strong>有心血管疾病者</strong>请遵医嘱运动，运动中出现胸痛/头晕应立即停止</p>
+      </div>
+      <div class="auto-result" id="result-cardio">
+        <span class="ar-icon"></span>
+        <span class="ar-text"></span>
+        <span class="ar-badge"></span>
+      </div>
+    </div>
+  </div>
+  <div class="alert">
+    <span class="ae">💡</span>
+    <p><strong>心肺贴士：</strong>每周150分钟中等强度有氧运动（快走、骑车）可显著改善心肺功能；运动时能说话但不能唱歌说明强度合适</p>
+  </div>
+</div>
+<div class="section" id="sec-monthly-flex">
+  <div class="sec-header">
+    <div class="st">🧘 柔韧性</div>
+    <div class="sd">坐位体前屈 · 肩部柔韧 · 髋部活动</div>
+  </div>
+  <div class="test-card" id="test-flex">
+    <div class="test-header" onclick="toggleTest('flex')">
+      <div class="test-header-left"><span class="test-icon">🧘</span>
+        <div><div class="test-title">柔韧性自检</div><div class="test-sub">体前屈 · 肩关节</div></div>
+      </div>
+      <div class="test-header-right">
+        <span class="test-status" id="status-flex"></span>
+        <span class="test-arrow">▼</span>
+      </div>
+    </div>
+    <div class="test-body" id="body-flex">
+      <div class="ml">坐位体前屈（手指触地测试）</div>
+      <div class="mb">
+        <p><strong>测试方法：</strong>坐在地上，双腿伸直，脚跟贴紧地面（可以用人帮忙压住脚掌），身体前倾，手臂伸直向前，尽量用指尖触碰脚尖或向前伸，记录手指超过脚尖多少厘米。</p>
+        <div class="sg" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="so warn" onclick="selectScore('sit-reach',this,1,'flex')"><span class="ov">摸不到</span><span class="ol">柔韧性差</span></div>
+          <div class="so" onclick="selectScore('sit-reach',this,2,'flex')"><span class="ov">指尖触到</span><span class="ol">一般</span></div>
+          <div class="so" onclick="selectScore('sit-reach',this,3,'flex')"><span class="ov">手掌过脚</span><span class="ol">柔韧好</span></div>
+        </div>
+      </div>
+      <div class="ml">肩部柔韧测试</div>
+      <div class="mb">
+        <p><strong>测试方法：</strong>一只手从肩上向后伸，另一只手从腰后向上伸，双手尽量靠拢。</p>
+        <div class="sg" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="so warn" onclick="selectScore('shoulder',this,1,'flex')"><span class="ov">碰不到</span><span class="ol">受限</span></div>
+          <div class="so" onclick="selectScore('shoulder',this,2,'flex')"><span class="ov">指尖相碰</span><span class="ol">一般</span></div>
+          <div class="so" onclick="selectScore('shoulder',this,3,'flex')"><span class="ov">双手握住</span><span class="ol">良好</span></div>
+        </div>
+      </div>
+      <div class="ml">髋关节活动度</div>
+      <div class="mb">
+        <p>尝试深蹲，膝盖能不能不超过脚尖？</p>
+        <div class="sg" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="so warn" onclick="selectScore('hip',this,1,'flex')"><span class="ov">蹲不下去</span><span class="ol">受限</span></div>
+          <div class="so" onclick="selectScore('hip',this,2,'flex')"><span class="ov">勉强可以</span><span class="ol">一般</span></div>
+          <div class="so" onclick="selectScore('hip',this,3,'flex')"><span class="ov">轻松标准</span><span class="ol">良好</span></div>
+        </div>
+      </div>
+      <div class="auto-result" id="result-flex">
+        <span class="ar-icon"></span>
+        <span class="ar-text"></span>
+        <span class="ar-badge"></span>
+      </div>
+    </div>
+  </div>
+  <div class="alert">
+    <span class="ae">💡</span>
+    <p><strong>柔韧贴士：</strong>运动前动态拉伸热身，运动后静态拉伸放松；每天花10分钟拉伸可改善柔韧性；柔韧性好的人受伤风险更低</p>
+  </div>
+</div>
+<div class="section" id="sec-monthly-weight">
+  <div class="sec-header">
+    <div class="st">⚖️ 体重与BMI</div>
+    <div class="sd">BMI 计算 · 腰围测量 · 体重趋势</div>
+  </div>
+  <div class="test-card" id="test-weight">
+    <div class="test-header" onclick="toggleTest('weight')">
+      <div class="test-header-left"><span class="test-icon">⚖️</span>
+        <div><div class="test-title">体重自检</div><div class="test-sub">BMI · 腰围</div></div>
+      </div>
+      <div class="test-header-right">
+        <span class="test-status" id="status-weight"></span>
+        <span class="test-arrow">▼</span>
+      </div>
+    </div>
+    <div class="test-body" id="body-weight">
+      <div class="form-row">
+        <label>体重</label>
+        <input class="finput" id="weight" placeholder="65" type="number" step="0.1">
+        <span>kg</span>
+      </div>
+      <div class="form-row">
+        <label>身高</label>
+        <input class="finput" id="height" placeholder="170" type="number" step="0.1">
+        <span>cm</span>
+      </div>
+      <button class="btn" onclick="calcBMI()">计算 BMI</button>
+      <div class="rb" id="bmi-result" style="display:none">
+        <div class="bn" id="bmi-num">--</div>
+        <div class="bl" id="bmi-label">--</div>
+        <div class="bs" id="bmi-range"></div>
+      </div>
+      <div class="form-row" style="margin-top:16px">
+        <label>腰围</label>
+        <input class="finput" id="waist" placeholder="80" type="number">
+        <span>cm</span>
+      </div>
+      <div class="info-box">
+        <p><strong>BMI 参考：</strong>18.5-23.9 正常 | 24-27.9 超重 | ≥28 肥胖 | &lt;18.5 偏瘦</p>
+        <p><strong>腰围预警：</strong>男性 ≥90cm / 女性 ≥85cm 需注意腹部肥胖</p>
+      </div>
+      <div class="auto-result" id="result-weight">
+        <span class="ar-icon"></span>
+        <span class="ar-text"></span>
+        <span class="ar-badge"></span>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="card-title">📈 体重管理建议</div>
+    <ul class="bl2">
+      <li><span class="dot">•</span>每周减重 0.5-1kg 为安全范围，避免极端节食</li>
+      <li><span class="dot">•</span>减少精制碳水（白米饭、面条）用杂粮替代</li>
+      <li><span class="dot">•</span>每天行走 8000-10000 步，无需剧烈运动</li>
+      <li><span class="dot">•</span>充足睡眠（7-8小时）有助于体重控制</li>
+    </ul>
+  </div>
+</div>
+<div class="section" id="sec-monthly-muscle">
+  <div class="sec-header">
+    <div class="st">💪 肌肉力量</div>
+    <div class="sd">握力测试 · 俯卧撑 · 核心力量</div>
+  </div>
+  <div class="test-card" id="test-muscle">
+    <div class="test-header" onclick="toggleTest('muscle')">
+      <div class="test-header-left"><span class="test-icon">💪</span>
+        <div><div class="test-title">肌肉力量自检</div><div class="test-sub">握力 · 俯卧撑 · 深蹲</div></div>
+      </div>
+      <div class="test-header-right">
+        <span class="test-status" id="status-muscle"></span>
+        <span class="test-arrow">▼</span>
+      </div>
+    </div>
+    <div class="test-body" id="body-muscle">
+      <div class="ml">握力测试（无握力计版）</div>
+      <div class="mb">
+        <p><strong>测试方法：</strong>用手握住门框，用力往外拉，感受力量大小。或用弹簧秤挂重物估计。</p>
+        <div class="sg" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="so warn" onclick="selectScore('grip',this,1,'muscle')"><span class="ov">无力</span><span class="ol">明显下降</span></div>
+          <div class="so" onclick="selectScore('grip',this,2,'muscle')"><span class="ov">一般</span><span class="ol">正常</span></div>
+          <div class="so" onclick="selectScore('grip',this,3,'muscle')"><span class="ov">有力</span><span class="ol">力量好</span></div>
+        </div>
+      </div>
+      <div class="ml">俯卧撑测试（30秒计数）</div>
+      <div class="mb">
+        <p>标准俯卧撑，30秒最多做多少个？（膝盖着地可降低难度）</p>
+        <div class="sg" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="so warn" onclick="selectScore('pushup',this,1,'muscle')"><span class="ov">&lt;5个</span><span class="ol">力量弱</span></div>
+          <div class="so" onclick="selectScore('pushup',this,2,'muscle')"><span class="ov">5-15个</span><span class="ol">一般</span></div>
+          <div class="so" onclick="selectScore('pushup',this,3,'muscle')"><span class="ov">&gt;15个</span><span class="ol">力量好</span></div>
+        </div>
+      </div>
+      <div class="ml">核心稳定性测试（平板支撑）</div>
+      <div class="mb">
+        <p>标准平板支撑（肘脚撑地），能坚持多久？</p>
+        <div class="sg" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="so warn" onclick="selectScore('plank',this,1,'muscle')"><span class="ov">&lt;30秒</span><span class="ol">较弱</span></div>
+          <div class="so" onclick="selectScore('plank',this,2,'muscle')"><span class="ov">30-60秒</span><span class="ol">一般</span></div>
+          <div class="so" onclick="selectScore('plank',this,3,'muscle')"><span class="ov">&gt;60秒</span><span class="ol">良好</span></div>
+        </div>
+      </div>
+      <div class="info-box">
+        <p>💡 <strong>肌肉流失警告：</strong>从40岁起每年约流失1%肌肉量；久坐不动会加速流失；蛋白质摄入不足也会导致肌肉减少</p>
+      </div>
+      <div class="auto-result" id="result-muscle">
+        <span class="ar-icon"></span>
+        <span class="ar-text"></span>
+        <span class="ar-badge"></span>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="card-title">🏋️ 力量训练建议</div>
+    <ul class="bl2">
+      <li><span class="dot">•</span>每周 2-3 次力量训练，每次间隔 48 小时</li>
+      <li><span class="dot">•</span>从自重训练开始（俯卧撑、深蹲、平板支撑）</li>
+      <li><span class="dot">•</span>蛋白质摄入：每公斤体重 1.0-1.2g（老年人可增至 1.2-1.5g）</li>
+      <li><span class="dot">•</span>肌肉酸痛后休息 48 小时再训练同一肌群</li>
+    </ul>
+  </div>
+</div>
+<div class="section" id="sec-yearly">
+  <div class="sec-header">
+    <div class="st">🩺 年度体检提醒</div>
+    <div class="sd">血液指标 · 体检项目 · 参考值</div>
+  </div>
+  <div class="card">
+    <div class="card-title">🩸 必做血液检查项目</div>
+    <table class="ct">
+      <tr><th>项目</th><th>参考值</th><th>说明</th></tr>
+      <tr><td>血红蛋白</td><td>男 130-175 / 女 115-150 g/L</td><td>是否贫血</td></tr>
+      <tr><td>空腹血糖</td><td>3.9-6.1 mmol/L</td><td>糖尿病筛查</td></tr>
+      <tr><td>总胆固醇</td><td>&lt;5.2 mmol/L</td><td>心血管风险</td></tr>
+      <tr><td>甘油三酯</td><td>&lt;1.7 mmol/L</td><td>血脂指标</td></tr>
+      <tr><td>LDL-C（坏胆固醇）</td><td>&lt;3.4 mmol/L</td><td>动脉硬化风险</td></tr>
+      <tr><td>HDL-C（好胆固醇）</td><td>男 >1.0 / 女 >1.3 mmol/L</td><td>保护性血脂</td></tr>
+      <tr><td>ALT（谷丙转氨酶）</td><td>&lt;40 U/L</td><td>肝功能</td></tr>
+      <tr><td>肌酐</td><td>男 53-106 / 女 44-97 μmol/L</td><td>肾功能</td></tr>
+      <tr><td>促甲状腺激素 (TSH)</td><td>0.27-4.2 mIU/L</td><td>甲状腺功能</td></tr>
+      <tr><td>尿酸</td><td>男 208-428 / 女 155-357 μmol/L</td><td>痛风风险</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">📋 按年龄推荐体检项目</div>
+    <div class="rc">
+      <div class="rtitle">👤 20-30岁 每2年体检一次</div>
+      <div class="rdesc">基础体检：血常规、血糖、血脂、肝肾功能、乙肝五项、胸片、心电图</div>
+      <div class="rtags">
+        <span class="rtag">血常规</span><span class="rtag">血糖</span><span class="rtag">血脂</span><span class="rtag">心电图</span>
+      </div>
+    </div>
+    <div class="rc">
+      <div class="rtitle">👤 30-40岁 每年体检一次</div>
+      <div class="rdesc">在基础上加：甲状腺B超、幽门螺杆菌检测、肿瘤标志物（AFP/CEA）、乙肝抗体监测</div>
+      <div class="rtags">
+        <span class="rtag">甲状腺B超</span><span class="rtag">肿瘤标志物</span><span class="rtag">HP检测</span>
+      </div>
+    </div>
+    <div class="rc">
+      <div class="rtitle">👤 40-50岁 每年体检 + 重点筛查</div>
+      <div class="rdesc">增加：肺部CT（吸烟者）、胃镜/肠镜、乳腺B超/钼靶（女性）、前列腺特异抗原 PSA（男性）</div>
+      <div class="rtags">
+        <span class="rtag high">肺部CT</span><span class="rtag high">肠镜</span><span class="rtag">乳腺筛查</span><span class="rtag">PSA</span>
+      </div>
+    </div>
+    <div class="rc high">
+      <div class="rtitle">👤 50岁以上 每年全面体检</div>
+      <div class="rdesc">以上全部 + 骨密度、心脏彩超、脑血管检查（颈动脉超声）、眼底检查、听力筛查</div>
+      <div class="rtags">
+        <span class="rtag high">骨密度</span><span class="rtag high">心脏彩超</span><span class="rtag">颈动脉超声</span><span class="rtag">眼底</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🎯 年度健康目标设定</div>
+    <div class="form-row">
+      <label>空腹血糖</label>
+      <input class="finput" id="goal-glucose" placeholder="目标值" type="number">
+      <span>mmol/L</span>
+    </div>
+    <div class="form-row">
+      <label>总胆固醇</label>
+      <input class="finput" id="goal-chol" placeholder="目标值" type="number">
+      <span>mmol/L</span>
+    </div>
+    <div class="form-row">
+      <label>体重目标</label>
+      <input class="finput" id="goal-weight" placeholder="目标" type="number" step="0.1">
+      <span>kg</span>
+    </div>
+    <div class="form-row">
+      <label>运动目标</label>
+      <input class="finput" id="goal-exercise" placeholder="每周分钟" type="number">
+      <span>分钟/周</span>
+    </div>
+    <button class="btn" onclick="saveGoals()">💾 保存年度目标</button>
+    <div id="goal-msg" style="font-size:12px;color:var(--primary);text-align:center;margin-top:8px"></div>
+  </div>
+  <div class="alert">
+    <span class="ae">💡</span>
+    <p><strong>体检前注意：</strong>空腹 8-12 小时抽血；前一晚避免高脂饮食和饮酒；女性避开月经期做尿检；体检当天带好身份证</p>
+  </div>
+  <div class="card">
+    <div class="card-title">📅 体检提醒设置</div>
+    <div class="form-row">
+      <label>体检日期</label>
+      <input class="finput" id="exam-date" type="date" style="max-width:180px">
+    </div>
+    <button class="btn" onclick="setExamReminder()">🔔 设置提醒</button>
+    <div id="exam-msg" style="font-size:12px;color:var(--primary);text-align:center;margin-top:8px"></div>
+  </div>
+</div>
+<div class="section" id="sec-faq">
+  <div class="sec-header">
+    <div class="st">❓ 常见问题</div>
+    <div class="sd">关于手册使用的常见问题解答</div>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      这个手册能替代医生诊断吗？
+      <span class="arr">▼</span>
+    </button>
+    <div class="faq-a">
+      <div class="faq-ac">
+        <p>不能。本手册是健康自查工具，帮助你建立健康意识和追踪趋势。它不能替代专业医疗诊断。如果你有任何不适或异常，请及时就医。</p>
+      </div>
+    </div>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      没有设备怎么测心率和血压？
+      <span class="arr">▼</span>
+    </button>
+    <div class="faq-a">
+      <div class="faq-ac">
+        <p><strong>心率：</strong>用两根手指按住手腕内侧或颈动脉，感受脉搏跳动，数 30 秒的跳动次数乘以 2 即为每分钟心率。</p>
+        <p><strong>血压：</strong>无法无设备测量，建议购买上臂式电子血压计（100-300元），或到药店、社区医院免费测量。</p>
+      </div>
+    </div>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      数据会保存在哪里？
+      <span class="arr">▼</span>
+    </button>
+    <div class="faq-a">
+      <div class="faq-ac">
+        <p>所有数据存储在你本地浏览器的 localStorage 中，不会发送到任何服务器。关闭页面或清除浏览器缓存后数据会丢失，需要重新记录。</p>
+      </div>
+    </div>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      体检应该挂什么科？
+      <span class="arr">▼</span>
+    </button>
+    <div class="faq-a">
+      <div class="faq-ac">
+        <p><strong>常规体检：</strong>体检科/健康管理中心（一站式完成所有项目）</p>
+        <p><strong>专项检查：</strong>心脏→心内科 | 血压→心内科/高血压科 | 肠胃→消化内科 | 骨科→骨科/骨质疏松门诊</p>
+      </div>
+    </div>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      BMI 正常就代表健康吗？
+      <span class="arr">▼</span>
+    </button>
+    <div class="faq-a">
+      <div class="faq-ac">
+        <p>不一定。BMI 不反映体脂分布和肌肉量。有些人 BMI 正常但内脏脂肪超标（"隐形肥胖"），或体脂率偏高。建议结合腰围和体脂率综合判断。</p>
+      </div>
+    </div>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      数据可以导出吗？
+      <span class="arr">▼</span>
+    </button>
+    <div class="faq-a">
+      <div class="faq-ac">
+        <p>目前版本 v0.5.4 不支持导出。未来版本将支持导出为 CSV 或 PDF 格式，方便与医生分享或长期保存。</p>
+      </div>
+    </div>
+  </div>
+</div>
+<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<div class="footer">
+  <p>👨‍👩‍👧‍👦 家庭健康自查手册 v0.6.2</p>
+  <p class="cr">Made by HopE & 小爪 | 仅供健康参考，不替代医疗诊断</p>
+</div>
+<script>
+// Tab 配置
+var TABS={
+  daily:['overview','sleep','bowel','mood','vitals'],
+  monthly:['overview','cardio','flex','weight','muscle'],
+  yearly:['yearly','faq']
+};
+var SEC_ID={
+  'daily-overview':'sec-daily-overview','daily-sleep':'sec-daily-sleep',
+  'daily-bowel':'sec-daily-bowel','daily-mood':'sec-daily-mood',
+  'daily-vitals':'sec-daily-vitals',
+  'monthly-overview':'sec-monthly-overview','monthly-cardio':'sec-monthly-cardio',
+  'monthly-flex':'sec-monthly-flex','monthly-weight':'sec-monthly-weight',
+  'monthly-muscle':'sec-monthly-muscle',
+  'yearly-yearly':'sec-yearly','yearly-faq':'sec-faq'
+};
+var ICONS={overview:'📋',sleep:'😴',bowel:'🚽',mood:'😊',vitals:'🩺',
+  cardio:'❤️',flex:'🧘',weight:'⚖️',muscle:'💪',yearly:'🩺',faq:'❓'};
+var NAMES={overview:'总览',sleep:'睡眠',bowel:'排泄',mood:'情绪',vitals:'体征',
+  cardio:'心肺',flex:'柔韧',weight:'体重',muscle:'肌肉',yearly:'年度提醒',faq:'常见问题'};
+var currentTier='daily',currentTab='overview';
+var state={};
+
+// 每个测试项必填字段定义
+var REQUIRED_FIELDS={
+  sleep:['sleep-time','sleep-energy','sleep-drowse'],
+  mood:['mood-score','stress','social'],
+  cardio:['walk-test','hr-recovery'],
+  flex:['sit-reach','shoulder','hip'],
+  muscle:['grip','pushup','plank']
+};
+
+function setTier(t){
+  currentTier=t;
+  document.querySelectorAll('.tier-btn').forEach(function(b){b.classList.remove('active')});
+  document.getElementById('tier-'+t+'-btn').classList.add('active');
+  var bar=document.getElementById('tabBar');
+  var firstTab=TABS[t][0];
+  var html='';
+  TABS[t].forEach(function(tab){
+    var active=(tab===firstTab)?'active':'';
+    html+='<button class="tab-btn '+active+'" id="tab-'+tab+'" onclick="setTab(\''+tab+'\')">'+ICONS[tab]+' '+NAMES[tab]+'</button>';
+  });
+  bar.innerHTML=html;
+  bar.style.display='flex';
+  setTab(firstTab);
+}
+
+function setTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+  var btn=document.getElementById('tab-'+tab);
+  if(btn)btn.classList.add('active');
+  showSection(tab);
+}
+
+function showSection(tab){
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active')});
+  var key=currentTier+'-'+tab;
+  var secId=SEC_ID[key];
+  var sec=secId?document.getElementById(secId):null;
+  if(sec)sec.classList.add('active');
+}
+
+function toggleTest(id){
+  var header=document.querySelector('#test-'+id+' .test-header');
+  var body=document.getElementById('body-'+id);
+  header.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+// 通用评分选择
+function selectScore(key,el,val,testId){
+  var par=el.parentElement;
+  if(par.classList.contains('sg')){
+    var items=par.querySelectorAll('.so');
+    for(var j=0;j<items.length;j++)items[j].classList.remove('sel','warn');
+  }
+  el.classList.add('sel');
+  if(!state[currentTier])state[currentTier]={};
+  if(!state[currentTier][testId])state[currentTier][testId]={};
+  state[currentTier][testId][key]=val;
+  
+  // 自动判定
+  autoEvaluate(testId);
+}
+
+// 自动判定函数
+function autoEvaluate(testId){
+  if(!state[currentTier]||!state[currentTier][testId])return;
+  
+  var s=state[currentTier][testId];
+  var card=document.getElementById('test-'+testId);
+  var status=document.getElementById('status-'+testId);
+  var result=document.getElementById('result-'+testId);
+  var fail=false;
+  var failReasons=[];
+  
+  if(testId==='sleep'){
+    // 睡眠判定规则
+    if(s['sleep-drowse']===2){fail=true;failReasons.push('白天嗜睡明显');}
+    if(s['sleep-time']===1){fail=true;failReasons.push('入睡时长>30分钟');}
+    if(s['sleep-energy']&&s['sleep-energy']<=2){fail=true;failReasons.push('晨起精力差');}
+    showResult(result,fail,failReasons,'sleep');
+  }
+  else if(testId==='mood'){
+    // 情绪判定规则
+    if(s['mood-score']&&s['mood-score']<=3){fail=true;failReasons.push('情绪评分偏低');}
+    if(s['stress']>=2){fail=true;failReasons.push('压力程度较大');}
+    if(s['social']===0){fail=true;failReasons.push('社交不足');}
+    showResult(result,fail,failReasons,'mood');
+  }
+  else if(testId==='cardio'){
+    // 心肺判定规则
+    if(s['walk-test']===1){fail=true;failReasons.push('步行距离<300m');}
+    if(s['hr-recovery']===1){fail=true;failReasons.push('心率恢复慢');}
+    showResult(result,fail,failReasons,'cardio');
+  }
+  else if(testId==='flex'){
+    // 柔韧性判定规则
+    if(s['sit-reach']===1){fail=true;failReasons.push('体前屈受限');}
+    if(s['shoulder']===1){fail=true;failReasons.push('肩部柔韧差');}
+    if(s['hip']===1){fail=true;failReasons.push('髋关节活动受限');}
+    showResult(result,fail,failReasons,'flex');
+  }
+  else if(testId==='muscle'){
+    // 肌肉判定规则
+    if(s['grip']===1){fail=true;failReasons.push('握力下降');}
+    if(s['pushup']===1){fail=true;failReasons.push('俯卧撑<5个');}
+    if(s['plank']===1){fail=true;failReasons.push('平板支撑<30秒');}
+    showResult(result,fail,failReasons,'muscle');
+  }
+  
+  // 更新卡片状态
+  if(fail){
+    card.classList.remove('done');
+    card.classList.add('fail');
+    status.className='test-status fail';
+    status.textContent='需关注';
+  }else{
+    card.classList.remove('fail');
+    card.classList.add('done');
+    status.className='test-status pass';
+    status.textContent='已完成';
+  }
+  updateProgress();
+}
+
+// 显示自动判定结果
+function showResult(el,fail,reasons,testId){
+  if(!el)return;
+  el.classList.add('show');
+  el.classList.remove('pass','fail');
+  el.classList.add(fail?'fail':'pass');
+  
+  var icon=el.querySelector('.ar-icon');
+  var text=el.querySelector('.ar-text');
+  var badge=el.querySelector('.ar-badge');
+  
+  if(fail){
+    icon.textContent='⚠️';
+    text.textContent='检测到问题：'+reasons.join('、');
+    badge.textContent='需关注';
+  }else{
+    icon.textContent='✅';
+    var messages={
+      sleep:'睡眠质量良好，继续保持规律作息',
+      mood:'情绪状态正常，保持积极心态',
+      cardio:'心肺功能良好，持续有氧运动',
+      flex:'柔韧性良好，继续保持拉伸习惯',
+      muscle:'肌肉力量良好，继续保持训练',
+      bowel:'排泄功能正常',
+      vitals:'体征指标正常'
+    };
+    text.textContent=messages[testId]||'各项指标正常';
+    badge.textContent='正常';
+  }
+}
+
+// 布里斯托大便分类
+function selectBristol(v,el){
+  var items=document.querySelectorAll('.bi');
+  for(var i=0;i<items.length;i++)items[i].classList.remove('sel','warn');
+  el.classList.add('sel');
+  if(v>=5)el.classList.add('warn');
+  
+  if(!state[currentTier])state[currentTier]={};
+  if(!state[currentTier].bowel)state[currentTier].bowel={};
+  state[currentTier].bowel.bristol=v;
+  
+  var fail=v===1||v===2||v===7;
+  var reasons=[];
+  if(v===1||v===2)reasons.push('大便形态偏干，可能便秘');
+  if(v===7)reasons.push('大便稀水状，可能腹泻');
+  
+  var card=document.getElementById('test-bowel');
+  var status=document.getElementById('status-bowel');
+  var result=document.getElementById('result-bowel');
+  
+  showResult(result,fail,reasons,'bowel');
+  
+  if(fail){
+    card.classList.remove('done');
+    card.classList.add('fail');
+    status.className='test-status fail';
+    status.textContent='需关注';
+  }else{
+    card.classList.remove('fail');
+    card.classList.add('done');
+    status.className='test-status pass';
+    status.textContent='已完成';
+  }
+  updateProgress();
+}
+
+// 大便颜色选择
+function selectBowelColor(c,el){
+  var btns=el.parentElement.querySelectorAll('.cbtn');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('pass','warn','sel');
+  el.classList.add('sel');
+  
+  if(!state[currentTier])state[currentTier]={};
+  if(!state[currentTier].bowel)state[currentTier].bowel={};
+  state[currentTier].bowel.color=c;
+  
+  if(c==='black'||c==='red'||c==='pale'){
+    el.classList.add('warn');
+    document.getElementById('bowel-color-msg').innerHTML='⚠️ <strong>建议就医检查</strong>，排除消化道出血等风险';
+  }else if(c==='yellow'){
+    document.getElementById('bowel-color-msg').innerHTML='黄色大便可能与饮食有关，持续出现请留意';
+  }else{
+    document.getElementById('bowel-color-msg').innerHTML='✅ 正常颜色，继续保持';
+  }
+}
+
+// 小便颜色选择
+function selectUrine(v,el){
+  var btns=el.parentElement.querySelectorAll('.cbtn');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('pass','warn','sel');
+  el.classList.add('sel');
+  if(v==='dark'||v==='red')el.classList.add('warn');
+  
+  if(!state[currentTier])state[currentTier]={};
+  if(!state[currentTier].bowel)state[currentTier].bowel={};
+  state[currentTier].bowel.urine=v;
+}
+
+// 体征数据分析
+function evalVitals(){
+  var sys=parseFloat(document.getElementById('bp-sys').value)||0;
+  var dia=parseFloat(document.getElementById('bp-dia').value)||0;
+  var hr=parseFloat(document.getElementById('hr').value)||0;
+  var temp=parseFloat(document.getElementById('temp').value)||0;
+  var spo2=parseFloat(document.getElementById('spo2').value)||0;
+  
+  var fail=false;
+  var reasons=[];
+  
+  if(sys>0||dia>0){
+    if(sys>=140||dia>=90){fail=true;reasons.push('血压偏高('+sys+'/'+dia+'mmHg)');}
+    else if(sys<90||dia<60){fail=true;reasons.push('血压偏低('+sys+'/'+dia+'mmHg)');}
+  }
+  if(hr>0){
+    if(hr>100){fail=true;reasons.push('心率过快('+hr+'bpm)');}
+    else if(hr<60){fail=true;reasons.push('心率过慢('+hr+'bpm)');}
+  }
+  if(temp>0){
+    if(temp>37.5){fail=true;reasons.push('体温偏高('+temp+'℃)');}
+    else if(temp<36.0){fail=true;reasons.push('体温偏低('+temp+'℃)');}
+  }
+  if(spo2>0&&spo2<95){
+    fail=true;reasons.push('血氧偏低('+spo2+'%)');
+  }
+  
+  var card=document.getElementById('test-vitals');
+  var status=document.getElementById('status-vitals');
+  var result=document.getElementById('result-vitals');
+  
+  showResult(result,fail,reasons,'vitals');
+  
+  if(fail){
+    card.classList.remove('done');
+    card.classList.add('fail');
+    status.className='test-status fail';
+    status.textContent='需关注';
+  }else{
+    card.classList.remove('fail');
+    card.classList.add('done');
+    status.className='test-status pass';
+    status.textContent='已完成';
+  }
+  updateProgress();
+}
+
+// BMI计算
+function calcBMI(){
+  var w=parseFloat(document.getElementById('weight').value);
+  var h=parseFloat(document.getElementById('height').value)/100;
+  if(!w||!h||h<=0){alert('请输入有效的体重和身高');return;}
+  
+  var bmi=w/(h*h);
+  document.getElementById('bmi-num').textContent=bmi.toFixed(1);
+  var label='';
+  if(bmi<18.5){label='偏瘦';document.getElementById('bmi-num').style.color='var(--warn)';}
+  else if(bmi<24){label='正常';document.getElementById('bmi-num').style.color='var(--primary)';}
+  else if(bmi<28){label='超重';document.getElementById('bmi-num').style.color='var(--accent)';}
+  else{label='肥胖';document.getElementById('bmi-num').style.color='var(--warn)';}
+  document.getElementById('bmi-label').textContent=label;
+  document.getElementById('bmi-range').textContent='BMI '+bmi.toFixed(1)+' | 身高'+document.getElementById('height').value+'cm | 体重'+w+'kg';
+  document.getElementById('bmi-result').style.display='block';
+  
+  // 自动判定体重
+  var fail=bmi<18.5||bmi>=24;
+  var reasons=[];
+  if(bmi<18.5)reasons.push('BMI偏低，可能营养不良');
+  if(bmi>=24&&bmi<28)reasons.push('BMI超重，建议控制饮食');
+  if(bmi>=28)reasons.push('BMI肥胖，建议就医咨询');
+  
+  var waist=parseFloat(document.getElementById('waist').value)||0;
+  if(waist>=90){fail=true;reasons.push('腰围超标，注意腹部肥胖');}
+  
+  var card=document.getElementById('test-weight');
+  var status=document.getElementById('status-weight');
+  var result=document.getElementById('result-weight');
+  
+  showResult(result,fail,reasons,'weight');
+  
+  if(fail){
+    card.classList.remove('done');
+    card.classList.add('fail');
+    status.className='test-status fail';
+    status.textContent='需关注';
+  }else{
+    card.classList.remove('fail');
+    card.classList.add('done');
+    status.className='test-status pass';
+    status.textContent='已完成';
+  }
+  updateProgress();
+}
+
+function saveGoals(){
+  var g={glucose:document.getElementById('goal-glucose').value,chol:document.getElementById('goal-chol').value,weight:document.getElementById('goal-weight').value,exercise:document.getElementById('goal-exercise').value};
+  localStorage.setItem('health-goals',JSON.stringify(g));
+  document.getElementById('goal-msg').textContent='✅ 年度目标已保存';
+  setTimeout(function(){document.getElementById('goal-msg').textContent='';},3000);
+}
+
+function setExamReminder(){
+  var d=document.getElementById('exam-date').value;
+  if(!d){document.getElementById('exam-msg').textContent='请选择体检日期';return;}
+  localStorage.setItem('exam-date',d);
+  document.getElementById('exam-msg').textContent='✅ 已设置 '+d+' 的体检提醒';
+  setTimeout(function(){document.getElementById('exam-msg').textContent='';},3000);
+}
+
+function toggleFaq(btn){
+  var a=btn.nextElementSibling;
+  a.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+
+function updateProgress(){
+  if(currentTier==='yearly')return;
+  var testIds=TABS[currentTier].filter(function(t){return t!=='overview'&&t!=='yearly'&&t!=='faq';});
+  var done=0;
+  testIds.forEach(function(id){
+    var card=document.getElementById('test-'+id);
+    if(card&&(card.classList.contains('done')||card.classList.contains('fail')))done++;
+  });
+  var total=testIds.length;
+  var pct=(done/total*100).toFixed(0);
+  var pt=document.getElementById(currentTier==='daily'?'d-p-text':'m-p-text');
+  var pf=document.getElementById(currentTier==='daily'?'d-p-fill':'m-p-fill');
+  var tip=document.getElementById(currentTier==='daily'?'d-p-tip':'m-p-tip');
+  if(pt)pt.textContent=done+' / '+total;
+  if(pf)pf.style.width=pct+'%';
+  if(tip){
+    if(done===0)tip.textContent='开始今天的记录吧 👇';
+    else if(done<total)tip.textContent='继续加油，已完成'+done+'项 👏';
+    else tip.textContent='🎉 今日全部完成！';
+  }
+  var roadmap=document.getElementById(currentTier==='daily'?'d-roadmap':'m-roadmap');
+  if(roadmap&&done>0){roadmap.style.display='block';genAdvice();}
+}
+
+function genAdvice(){
+  var el=document.getElementById(currentTier==='daily'?'d-advice':'m-advice');
+  if(!el)return;
+  var html='';
+  if(currentTier==='daily'){
+    var items=[];
+    if(state.daily&&state.daily.sleep){
+      if(state.daily.sleep['sleep-drowse']===2)items.push({ic:'😴',it:'白天嗜睡明显，建议调整作息或做睡眠呼吸监测',tag:'fail'});
+      else if(state.daily.sleep['sleep-energy']>=4)items.push({ic:'✅',it:'睡眠质量不错，继续保持',tag:'pass'});
+    }
+    if(state.daily&&state.daily.bowel){
+      if(state.daily.bowel.bristol===1||state.daily.bowel.bristol===2)items.push({ic:'🚽',it:'大便形态偏干便秘，增加膳食纤维和饮水',tag:'fail'});
+      if(state.daily.bowel.bristol===6||state.daily.bowel.bristol===7)items.push({ic:'🚽',it:'大便偏稀，注意饮食清淡，必要时就医',tag:'fail'});
+    }
+    if(state.daily&&state.daily.mood){
+      if(state.daily.mood['mood-score']&&state.daily.mood['mood-score']<=3)items.push({ic:'😊',it:'情绪偏低，注意自我调节，可尝试深呼吸或找人倾诉',tag:'fail'});
+      if(state.daily.mood['social']===0)items.push({ic:'🤝',it:'今天社交偏少，建议主动联系亲友',tag:'fail'});
+    }
+    if(items.length===0)items.push({ic:'🎉',it:'今日各项指标良好，保持健康生活方式！',tag:'pass'});
+    items.forEach(function(item){html+='<div class="ai"><span class="ic">'+item.ic+'</span><span class="it">'+item.it+'<span class="itag '+item.tag+'">'+(item.tag==='pass'?'正常':'建议关注')+'</span></span></div>';});
+  }else{
+    var mItems=[];
+    if(state.monthly&&state.monthly.cardio){
+      if(state.monthly.cardio['walk-test']===1)mItems.push({ic:'❤️',it:'心肺功能较弱，建议逐步增加有氧运动',tag:'fail'});
+      else mItems.push({ic:'✅',it:'心肺功能正常',tag:'pass'});
+    }
+    if(state.monthly&&state.monthly.flex){
+      if(state.monthly.flex['sit-reach']===1)mItems.push({ic:'🧘',it:'柔韧性偏弱，每天拉伸10分钟可改善',tag:'fail'});
+      else mItems.push({ic:'✅',it:'柔韧性良好',tag:'pass'});
+    }
+    if(state.monthly&&state.monthly.muscle){
+      if(state.monthly.muscle['pushup']===1)mItems.push({ic:'💪',it:'肌肉力量较弱，建议开始力量训练',tag:'fail'});
+      else mItems.push({ic:'✅',it:'肌肉力量良好',tag:'pass'});
+    }
+    if(mItems.length===0)mItems.push({ic:'🎉',it:'本月各项检查均正常，继续保持！',tag:'pass'});
+    mItems.forEach(function(item){html+='<div class="ai"><span class="ic">'+item.ic+'</span><span class="it">'+item.it+'<span class="itag '+item.tag+'">'+(item.tag==='pass'?'正常':'建议关注')+'</span></span></div>';});
+  }
+  el.innerHTML=html;
+}
+
+window.addEventListener('scroll',function(){
+  var btn=document.getElementById('scrollTop');
+  btn.classList.toggle('show',window.scrollY>300);
+});
+
+setTier('daily');
+</script>
+</body>
+</html>
